@@ -28,8 +28,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .reduce((a, b) -> a + ", " + b)
-                .orElse("Validation failed");
+                .collect(java.util.stream.Collectors.joining(", "));
+
+        if (message.isEmpty()) {
+            message = "Validation failed";
+        }
 
         ErrorResponse errorResponse = ErrorResponse.of(
                 HttpStatus.BAD_REQUEST.value(),
@@ -48,7 +51,7 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
                 "INTERNAL_SERVER_ERROR",
-                ex.getMessage(),
+                "An unexpected error occurred",
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
