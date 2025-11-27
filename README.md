@@ -26,17 +26,41 @@ src/
 
 ## 예외 처리
 
+### ErrorCode (Enum)
+
+에러 코드는 enum으로 정의됩니다:
+
+```java
+public enum ErrorCode {
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다"),
+    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "유효성 검사에 실패했습니다"),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다"),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다"),
+    // ... 추가 에러 코드
+}
+```
+
 ### CustomException
 
 커스텀 예외를 생성하려면 `CustomException`을 상속받아 구현합니다:
 
 ```java
 public class MyCustomException extends CustomException {
+    public MyCustomException() {
+        super(ErrorCode.INVALID_REQUEST);
+    }
+    
     public MyCustomException(String message) {
-        super(message, HttpStatus.BAD_REQUEST, "MY_ERROR_CODE");
+        super(ErrorCode.INVALID_REQUEST, message);
     }
 }
 ```
+
+### ErrorResponse
+
+에러 응답은 간단한 2개 필드로 구성됩니다:
+- `code`: ErrorCode enum 값
+- `message`: 에러 메시지
 
 ### GlobalExceptionHandler
 

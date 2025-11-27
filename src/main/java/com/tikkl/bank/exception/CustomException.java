@@ -1,16 +1,18 @@
 package com.tikkl.bank.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 public abstract class CustomException extends RuntimeException {
-    private final HttpStatus status;
-    private final String errorCode;
+    private final ErrorCode errorCode;
 
-    protected CustomException(String message, HttpStatus status, String errorCode) {
+    protected CustomException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
+    }
+
+    protected CustomException(ErrorCode errorCode, String message) {
         super(message);
-        this.status = status;
         this.errorCode = errorCode;
     }
 }

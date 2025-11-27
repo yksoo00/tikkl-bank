@@ -1,7 +1,5 @@
 package com.tikkl.bank.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,48 +10,31 @@ public class GlobalExceptionHandler {
 
     // Custom Exception Handler
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex, HttpServletRequest request) {
-        ErrorResponse errorResponse = ErrorResponse.of(
-                ex.getStatus().value(),
-                ex.getStatus().getReasonPhrase(),
-                ex.getErrorCode(),
-                ex.getMessage(),
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(ex.getStatus()).body(errorResponse);
+    public ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
+        ErrorCode errorCode = ex.getErrorCode();
+        ErrorResponse errorResponse = ErrorResponse.of(errorCode, ex.getMessage());
+        return ResponseEntity.status(errorCode.getStatus()).body(errorResponse);
     }
 
     // Validation Exception Handler
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .collect(java.util.stream.Collectors.joining(", "));
 
         if (message.isEmpty()) {
-            message = "Validation failed";
+            message = ErrorCode.VALIDATION_ERROR.getMessage();
         }
 
-        ErrorResponse errorResponse = ErrorResponse.of(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                "VALIDATION_ERROR",
-                message,
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.VALIDATION_ERROR, message);
+        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getStatus()).body(errorResponse);
     }
 
     // General Exception Handler
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex, HttpServletRequest request) {
-        ErrorResponse errorResponse = ErrorResponse.of(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                "INTERNAL_SERVER_ERROR",
-                "An unexpected error occurred",
-                request.getRequestURI()
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+        ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus()).body(errorResponse);
     }
 }
