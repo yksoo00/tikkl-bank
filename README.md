@@ -1,6 +1,6 @@
 # Tikkl Bank
 
-인공지능 공동창업자 양성과정 MCP
+인공지능 공동창업자 양성과정 MCP - 티끌 뱅크 서비스
 
 ## 기술 스택
 
@@ -16,58 +16,129 @@
 src/
 ├── main/
 │   ├── java/com/tikkl/bank/
-│   │   ├── exception/     # 예외 처리 (GlobalExceptionHandler, CustomException)
-│   │   └── config/        # 설정 클래스
+│   │   ├── common/        # 공통 응답 (ApiResponse)
+│   │   ├── controller/    # REST API 컨트롤러
+│   │   ├── dto/
+│   │   │   ├── request/   # 요청 DTO
+│   │   │   └── response/  # 응답 DTO
+│   │   ├── entity/        # JPA 엔티티
+│   │   ├── exception/     # 예외 처리
+│   │   ├── repository/    # JPA 레포지토리
+│   │   └── service/       # 비즈니스 로직
 │   └── resources/
 │       └── application.properties
 └── test/
     └── java/com/tikkl/bank/
 ```
 
-## 예외 처리
+## 엔티티
 
-### ErrorCode (Enum)
+| 엔티티 | 설명 |
+|--------|------|
+| `Member` | 회원 정보 (로그인ID, 비밀번호, 이름, 생년월일, 전화번호, 저축비율 등) |
+| `Account` | 연동 계좌 정보 (계좌번호, 은행명, 계좌유형, 잔액 등) |
+| `Card` | 연동 카드 정보 (카드번호, 카드사, 카드유형, 보너스비율 등) |
+| `Transaction` | 거래 내역 (거래유형, 금액, 저축금액, 가맹점 등) |
+| `SavingsAccount` | 티끌 전용 저축 계좌 (저축잔액, 누적저축금액, 이자율, 만기일 등) |
+| `FinancialProduct` | 금융 상품 정보 (상품명, 금리, 기간, 약관 등) |
 
-에러 코드는 enum으로 정의됩니다:
+## API 엔드포인트
 
-```java
-public enum ErrorCode {
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다"),
-    VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "유효성 검사에 실패했습니다"),
-    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "잘못된 요청입니다"),
-    NOT_FOUND(HttpStatus.NOT_FOUND, "리소스를 찾을 수 없습니다"),
-    // ... 추가 에러 코드
+### 인증 (Auth)
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | `/api/auth/signup` | 회원가입 |
+| POST | `/api/auth/login` | 로그인 |
+
+### 회원 (Member)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/members/{memberId}` | 회원 정보 조회 |
+| GET | `/api/members/{memberId}/mypage` | 마이페이지 조회 |
+| PUT | `/api/members/{memberId}/savings-settings` | 저축 설정 변경 |
+| POST | `/api/members/{memberId}/onboarding` | 온보딩 완료 |
+
+### 홈 (Home)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/members/{memberId}/home` | 홈 데이터 조회 |
+| GET | `/api/members/{memberId}/savings` | 저축 계좌 조회 |
+
+### 계좌 (Account)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/members/{memberId}/accounts` | 계좌 목록 조회 |
+| GET | `/api/members/{memberId}/accounts/{accountId}` | 계좌 상세 조회 |
+| POST | `/api/members/{memberId}/accounts` | 계좌 등록 |
+| PUT | `/api/members/{memberId}/accounts/{accountId}/primary` | 주 계좌 설정 |
+| DELETE | `/api/members/{memberId}/accounts/{accountId}` | 계좌 삭제 |
+
+### 카드 (Card)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/members/{memberId}/cards` | 카드 목록 조회 |
+| GET | `/api/members/{memberId}/cards/{cardId}` | 카드 상세 조회 |
+| POST | `/api/members/{memberId}/cards` | 카드 등록 |
+| PUT | `/api/members/{memberId}/cards/{cardId}/bonus-ratio` | 보너스 저축 비율 설정 |
+| DELETE | `/api/members/{memberId}/cards/{cardId}` | 카드 비활성화 |
+
+### 거래 내역 (Transaction)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/members/{memberId}/transactions` | 거래 내역 조회 (검색/필터) |
+| GET | `/api/members/{memberId}/transactions/recent` | 최근 거래 내역 조회 |
+| GET | `/api/members/{memberId}/transactions/{transactionId}` | 거래 상세 조회 |
+
+### 금융 상품 (Product)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/products` | 전체 상품 목록 |
+| GET | `/api/products/type/{productType}` | 유형별 상품 조회 |
+| GET | `/api/products/{productId}` | 상품 상세 조회 |
+
+## 응답 구조
+
+### 성공 응답
+```json
+{
+  "success": true,
+  "data": { ... },
+  "message": "성공 메시지"
 }
 ```
 
-### CustomException
-
-커스텀 예외를 생성하려면 `CustomException`을 상속받아 구현합니다:
-
-```java
-public class MyCustomException extends CustomException {
-    public MyCustomException() {
-        super(ErrorCode.INVALID_REQUEST);
-    }
-    
-    public MyCustomException(String message) {
-        super(ErrorCode.INVALID_REQUEST, message);
-    }
+### 에러 응답
+```json
+{
+  "code": "ERROR_CODE",
+  "message": "에러 메시지"
 }
 ```
 
-### ErrorResponse
+## ErrorCode
 
-에러 응답은 간단한 2개 필드로 구성됩니다:
-- `code`: ErrorCode enum 값
-- `message`: 에러 메시지
+```java
+// Common errors
+INTERNAL_SERVER_ERROR, VALIDATION_ERROR, INVALID_REQUEST, NOT_FOUND, UNAUTHORIZED, FORBIDDEN
 
-### GlobalExceptionHandler
+// Member errors
+MEMBER_NOT_FOUND, DUPLICATE_LOGIN_ID, DUPLICATE_PHONE_NUMBER, INVALID_PASSWORD
 
-`GlobalExceptionHandler`에서 다음 예외를 처리합니다:
-- `CustomException`: 커스텀 예외
-- `MethodArgumentNotValidException`: 유효성 검사 예외
-- `Exception`: 일반 예외
+// Account errors
+ACCOUNT_NOT_FOUND, DUPLICATE_ACCOUNT, INSUFFICIENT_BALANCE
+
+// Card errors
+CARD_NOT_FOUND, INVALID_CARD_TYPE
+
+// Savings errors
+SAVINGS_ACCOUNT_NOT_FOUND, SAVINGS_ACCOUNT_ALREADY_EXISTS
+
+// Transaction errors
+TRANSACTION_NOT_FOUND, TRANSACTION_FAILED
+
+// Product errors
+PRODUCT_NOT_FOUND
+```
 
 ## 시작하기
 
