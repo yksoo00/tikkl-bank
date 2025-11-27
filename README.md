@@ -5,10 +5,10 @@
 ## 기술 스택
 
 - **Backend**: Java 17, Spring Boot 3.2.0
-- **Database**: MySQL 8.0
+- **Database**: MySQL 8.0 (로컬)
 - **ORM**: Spring Data JPA / Hibernate
 - **Build Tool**: Gradle 8.5
-- **Container**: Docker & Docker Compose
+- **Container**: Docker
 
 ## 프로젝트 구조
 
@@ -16,16 +16,34 @@
 src/
 ├── main/
 │   ├── java/com/tikkl/bank/
-│   │   ├── controller/    # REST API 컨트롤러
-│   │   ├── entity/        # JPA 엔티티
-│   │   ├── repository/    # JPA 레포지토리
-│   │   ├── service/       # 비즈니스 로직
+│   │   ├── exception/     # 예외 처리 (GlobalExceptionHandler, CustomException)
 │   │   └── config/        # 설정 클래스
 │   └── resources/
 │       └── application.properties
 └── test/
     └── java/com/tikkl/bank/
 ```
+
+## 예외 처리
+
+### CustomException
+
+커스텀 예외를 생성하려면 `CustomException`을 상속받아 구현합니다:
+
+```java
+public class MyCustomException extends CustomException {
+    public MyCustomException(String message) {
+        super(message, HttpStatus.BAD_REQUEST, "MY_ERROR_CODE");
+    }
+}
+```
+
+### GlobalExceptionHandler
+
+`GlobalExceptionHandler`에서 다음 예외를 처리합니다:
+- `CustomException`: 커스텀 예외
+- `MethodArgumentNotValidException`: 유효성 검사 예외
+- `Exception`: 일반 예외
 
 ## 시작하기
 
@@ -41,23 +59,18 @@ src/
 ### Docker로 실행
 
 ```bash
-# Docker Compose로 MySQL과 애플리케이션 함께 실행
-docker-compose up -d
+# Docker 이미지 빌드
+docker build -t tikkl-bank .
 
-# 로그 확인
-docker-compose logs -f app
+# Docker 컨테이너 실행 (로컬 MySQL에 연결)
+docker run -p 8080:8080 \
+  -e MYSQL_HOST=host.docker.internal \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_DATABASE=tikklbank \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=password \
+  tikkl-bank
 ```
-
-## API 엔드포인트
-
-| Method | URL | Description |
-|--------|-----|-------------|
-| GET | /api/accounts | 모든 계좌 조회 |
-| GET | /api/accounts/{id} | 특정 계좌 조회 |
-| POST | /api/accounts | 계좌 생성 |
-| POST | /api/accounts/{id}/deposit | 입금 |
-| POST | /api/accounts/{id}/withdraw | 출금 |
-| DELETE | /api/accounts/{id} | 계좌 삭제 |
 
 ## 환경 변수
 
