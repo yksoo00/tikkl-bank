@@ -5,10 +5,80 @@
 ## 기술 스택
 
 - **Backend**: Java 17, Spring Boot 3.2.0
-- **Database**: MySQL 8.0 (로컬)
+- **Database**: MySQL 8.0
 - **ORM**: Spring Data JPA / Hibernate
 - **Build Tool**: Gradle 8.5
-- **Container**: Docker
+- **Container**: Docker, Docker Compose
+
+## 빠른 시작 (Quick Start)
+
+### Docker Compose로 실행 (권장)
+
+가장 쉬운 방법입니다. Docker와 Docker Compose가 설치되어 있어야 합니다.
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/yksoo00/tikkl-bank.git
+cd tikkl-bank
+
+# 2. Docker Compose로 실행 (MySQL + 애플리케이션)
+docker-compose up -d
+
+# 3. 로그 확인
+docker-compose logs -f app
+
+# 4. 종료
+docker-compose down
+
+# 5. 데이터 포함 완전 삭제
+docker-compose down -v
+```
+
+서버 실행 후 `http://localhost:8080/index.html`에서 API를 테스트할 수 있습니다.
+
+### 로컬 개발 환경
+
+MySQL을 로컬에 직접 설치하여 개발하는 경우:
+
+```bash
+# 1. MySQL 설치 및 데이터베이스 생성
+mysql -u root -p
+CREATE DATABASE tikklbank CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 2. 빌드
+./gradlew build
+
+# 3. 실행
+./gradlew bootRun
+```
+
+### Docker만 사용 (MySQL은 로컬)
+
+```bash
+# Docker 이미지 빌드
+docker build -t tikkl-bank .
+
+# Docker 컨테이너 실행 (로컬 MySQL에 연결)
+docker run -p 8080:8080 \
+  -e MYSQL_HOST=host.docker.internal \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_DATABASE=tikklbank \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=password \
+  tikkl-bank
+```
+
+## API 테스트 페이지
+
+서버 실행 후 `http://localhost:8080/index.html`에서 모든 API를 테스트할 수 있습니다.
+
+**지원 기능:**
+- 인증 (회원가입/로그인)
+- 회원/마이페이지/저축설정
+- 계좌 관리
+- 카드 관리
+- 거래내역 검색
+- 금융상품 조회
 
 ## 프로젝트 구조
 
@@ -138,33 +208,6 @@ TRANSACTION_NOT_FOUND, TRANSACTION_FAILED
 
 // Product errors
 PRODUCT_NOT_FOUND
-```
-
-## 시작하기
-
-### 로컬 개발 환경
-
-1. MySQL 설치 및 데이터베이스 생성
-2. 빌드 및 실행:
-```bash
-./gradlew build
-./gradlew bootRun
-```
-
-### Docker로 실행
-
-```bash
-# Docker 이미지 빌드
-docker build -t tikkl-bank .
-
-# Docker 컨테이너 실행 (로컬 MySQL에 연결)
-docker run -p 8080:8080 \
-  -e MYSQL_HOST=host.docker.internal \
-  -e MYSQL_PORT=3306 \
-  -e MYSQL_DATABASE=tikklbank \
-  -e MYSQL_USER=root \
-  -e MYSQL_PASSWORD=password \
-  tikkl-bank
 ```
 
 ## 환경 변수
