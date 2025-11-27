@@ -32,8 +32,8 @@ services:
       MYSQL_HOST: mysql
       MYSQL_PORT: 3306
       MYSQL_DATABASE: tikklbank
-      MYSQL_USER: root
-      MYSQL_PASSWORD: password
+      MYSQL_USER: tikkluser
+      MYSQL_PASSWORD: tikklpass
     depends_on:
       mysql:
         condition: service_healthy

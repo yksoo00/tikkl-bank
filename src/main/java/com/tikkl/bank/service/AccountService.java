@@ -1,6 +1,8 @@
 package com.tikkl.bank.service;
 
 import com.tikkl.bank.entity.Account;
+import com.tikkl.bank.exception.AccountNotFoundException;
+import com.tikkl.bank.exception.InsufficientBalanceException;
 import com.tikkl.bank.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,7 +44,7 @@ public class AccountService {
     @Transactional
     public Account deposit(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
         account.setBalance(account.getBalance().add(amount));
         return accountRepository.save(account);
     }
@@ -50,9 +52,9 @@ public class AccountService {
     @Transactional
     public Account withdraw(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account not found"));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientBalanceException();
         }
         account.setBalance(account.getBalance().subtract(amount));
         return accountRepository.save(account);
