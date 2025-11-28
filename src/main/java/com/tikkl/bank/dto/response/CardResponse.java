@@ -19,6 +19,10 @@ public class CardResponse {
     private Boolean isActive;
     private BigDecimal bonusSavingsRatio;
     private String benefits;
+    private Long linkedSavingsAccountId;
+    private BigDecimal monthlySpendingTarget;
+    private BigDecimal currentMonthSpending;
+    private BigDecimal totalBenefitReceived;
 
     public static CardResponse from(Card card) {
         return CardResponse.builder()
@@ -31,6 +35,11 @@ public class CardResponse {
                 .isActive(card.getIsActive())
                 .bonusSavingsRatio(card.getBonusSavingsRatio())
                 .benefits(card.getBenefits())
+                .linkedSavingsAccountId(card.getLinkedSavingsAccount() != null ? 
+                        card.getLinkedSavingsAccount().getId() : null)
+                .monthlySpendingTarget(card.getMonthlySpendingTarget())
+                .currentMonthSpending(card.getCurrentMonthSpending())
+                .totalBenefitReceived(card.getTotalBenefitReceived())
                 .build();
     }
 }

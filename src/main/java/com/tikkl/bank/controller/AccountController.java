@@ -2,7 +2,10 @@ package com.tikkl.bank.controller;
 
 import com.tikkl.bank.common.ApiResponse;
 import com.tikkl.bank.dto.request.AccountRequest;
+import com.tikkl.bank.dto.request.DepositRequest;
+import com.tikkl.bank.dto.request.WithdrawRequest;
 import com.tikkl.bank.dto.response.AccountResponse;
+import com.tikkl.bank.dto.response.TransactionResponse;
 import com.tikkl.bank.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -55,5 +58,23 @@ public class AccountController {
             @PathVariable Long accountId) {
         accountService.deleteAccount(memberId, accountId);
         return ResponseEntity.ok(ApiResponse.success(null, "계좌가 삭제되었습니다"));
+    }
+
+    @PostMapping("/{accountId}/deposit")
+    public ResponseEntity<ApiResponse<TransactionResponse>> deposit(
+            @PathVariable Long memberId,
+            @PathVariable Long accountId,
+            @Valid @RequestBody DepositRequest request) {
+        TransactionResponse response = accountService.deposit(memberId, accountId, request);
+        return ResponseEntity.ok(ApiResponse.success(response, "입금이 완료되었습니다"));
+    }
+
+    @PostMapping("/{accountId}/withdraw")
+    public ResponseEntity<ApiResponse<TransactionResponse>> withdraw(
+            @PathVariable Long memberId,
+            @PathVariable Long accountId,
+            @Valid @RequestBody WithdrawRequest request) {
+        TransactionResponse response = accountService.withdraw(memberId, accountId, request);
+        return ResponseEntity.ok(ApiResponse.success(response, "출금이 완료되었습니다"));
     }
 }

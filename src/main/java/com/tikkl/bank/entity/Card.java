@@ -51,6 +51,22 @@ public class Card {
     @Column(length = 500)
     private String benefits; // 카드 혜택 정보
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "linked_savings_account_id")
+    private SavingsAccount linkedSavingsAccount; // 카드 사용시 저축될 계좌
+
+    @Column(precision = 19, scale = 2)
+    @Builder.Default
+    private BigDecimal monthlySpendingTarget = BigDecimal.ZERO; // 월 사용 목표 금액
+
+    @Column(precision = 19, scale = 2)
+    @Builder.Default
+    private BigDecimal currentMonthSpending = BigDecimal.ZERO; // 이번 달 사용 금액
+
+    @Column(precision = 19, scale = 2)
+    @Builder.Default
+    private BigDecimal totalBenefitReceived = BigDecimal.ZERO; // 총 받은 혜택 금액
+
     @Column(nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

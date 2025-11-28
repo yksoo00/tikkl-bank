@@ -31,4 +31,9 @@ public class CardRequest {
     @DecimalMin(value = "0.0", message = "보너스 저축 비율은 0% 이상이어야 합니다")
     @DecimalMax(value = "100.0", message = "보너스 저축 비율은 100% 이하여야 합니다")
     private BigDecimal bonusSavingsRatio;
+
+    @DecimalMin(value = "0", message = "월 사용 목표 금액은 0원 이상이어야 합니다")
+    private BigDecimal monthlySpendingTarget;
+
+    private String benefits; // 카드 혜택 정보
 }

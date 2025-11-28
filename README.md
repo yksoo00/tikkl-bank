@@ -74,9 +74,12 @@ docker run -p 8080:8080 \
 
 **지원 기능:**
 - 인증 (회원가입/로그인)
-- 회원/마이페이지/저축설정
-- 계좌 관리
-- 카드 관리
+- 대시보드 (저축잔액, 이자, 카드사용, 청구예정 등 종합 조회)
+- 계좌 관리 (등록, 입금, 출금)
+- 카드 관리 (등록, 저축계좌 연결, 월 목표 설정)
+- 카드 결제 및 자동 저축
+- 카드 혜택 관리 (할인, 캐시백, 포인트 등)
+- 청구 내역 조회
 - 거래내역 검색
 - 금융상품 조회
 
@@ -107,7 +110,9 @@ src/
 |--------|------|
 | `Member` | 회원 정보 (로그인ID, 비밀번호, 이름, 생년월일, 전화번호, 저축비율 등) |
 | `Account` | 연동 계좌 정보 (계좌번호, 은행명, 계좌유형, 잔액 등) |
-| `Card` | 연동 카드 정보 (카드번호, 카드사, 카드유형, 보너스비율 등) |
+| `Card` | 연동 카드 정보 (카드번호, 카드사, 보너스비율, 월 목표 사용액, 저축계좌 연결 등) |
+| `CardBenefit` | 카드 혜택 정보 (혜택명, 유형, 할인율, 목표금액, 달성률 등) |
+| `CardBilling` | 카드 청구 내역 (청구월, 총액, 혜택금액, 저축금액 등) |
 | `Transaction` | 거래 내역 (거래유형, 금액, 저축금액, 가맹점 등) |
 | `SavingsAccount` | 티끌 전용 저축 계좌 (저축잔액, 누적저축금액, 이자율, 만기일 등) |
 | `FinancialProduct` | 금융 상품 정보 (상품명, 금리, 기간, 약관 등) |
@@ -133,6 +138,7 @@ src/
 |--------|-----|-------------|
 | GET | `/api/members/{memberId}/home` | 홈 데이터 조회 |
 | GET | `/api/members/{memberId}/savings` | 저축 계좌 조회 |
+| GET | `/api/members/{memberId}/dashboard` | 대시보드 (종합 조회) |
 
 ### 계좌 (Account)
 | Method | URL | Description |
@@ -140,6 +146,8 @@ src/
 | GET | `/api/members/{memberId}/accounts` | 계좌 목록 조회 |
 | GET | `/api/members/{memberId}/accounts/{accountId}` | 계좌 상세 조회 |
 | POST | `/api/members/{memberId}/accounts` | 계좌 등록 |
+| POST | `/api/members/{memberId}/accounts/{accountId}/deposit` | 입금 |
+| POST | `/api/members/{memberId}/accounts/{accountId}/withdraw` | 출금 |
 | PUT | `/api/members/{memberId}/accounts/{accountId}/primary` | 주 계좌 설정 |
 | DELETE | `/api/members/{memberId}/accounts/{accountId}` | 계좌 삭제 |
 
@@ -148,9 +156,23 @@ src/
 |--------|-----|-------------|
 | GET | `/api/members/{memberId}/cards` | 카드 목록 조회 |
 | GET | `/api/members/{memberId}/cards/{cardId}` | 카드 상세 조회 |
-| POST | `/api/members/{memberId}/cards` | 카드 등록 |
+| GET | `/api/members/{memberId}/cards/{cardId}/detail` | 카드 상세 (혜택/청구/달성률) |
+| POST | `/api/members/{memberId}/cards` | 카드 등록 (월 목표 설정) |
+| POST | `/api/members/{memberId}/cards/{cardId}/payment` | 카드 결제 (자동 저축) |
+| POST | `/api/members/{memberId}/cards/{cardId}/link-savings` | 저축 계좌 연결 |
 | PUT | `/api/members/{memberId}/cards/{cardId}/bonus-ratio` | 보너스 저축 비율 설정 |
 | DELETE | `/api/members/{memberId}/cards/{cardId}` | 카드 비활성화 |
+
+### 카드 혜택 (CardBenefit)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/members/{memberId}/cards/{cardId}/benefits` | 혜택 목록 조회 |
+| POST | `/api/members/{memberId}/cards/{cardId}/benefits` | 혜택 추가 |
+
+### 청구 내역 (CardBilling)
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/members/{memberId}/cards/{cardId}/billings` | 청구 내역 조회 |
 
 ### 거래 내역 (Transaction)
 | Method | URL | Description |

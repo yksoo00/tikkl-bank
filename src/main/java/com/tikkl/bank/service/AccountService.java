@@ -1,15 +1,21 @@
 package com.tikkl.bank.service;
 
 import com.tikkl.bank.dto.request.AccountRequest;
+import com.tikkl.bank.dto.request.DepositRequest;
+import com.tikkl.bank.dto.request.WithdrawRequest;
 import com.tikkl.bank.dto.response.AccountResponse;
+import com.tikkl.bank.dto.response.TransactionResponse;
 import com.tikkl.bank.entity.Account;
 import com.tikkl.bank.entity.Member;
+import com.tikkl.bank.entity.Transaction;
 import com.tikkl.bank.exception.CustomException;
 import com.tikkl.bank.exception.ErrorCode;
 import com.tikkl.bank.repository.AccountRepository;
+import com.tikkl.bank.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +25,7 @@ import java.util.stream.Collectors;
 public class AccountService {
 
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
     private final MemberService memberService;
 
     public List<AccountResponse> getAccounts(Long memberId) {
@@ -86,7 +93,62 @@ public class AccountService {
         account.setIsActive(false);
     }
 
-    private Account findAccountById(Long accountId) {
+    @Transactional
+    public TransactionResponse deposit(Long memberId, Long accountId, DepositRequest request) {
+        Member member = memberService.findMemberById(memberId);
+        Account account = findAccountById(accountId);
+        
+        validateAccountOwner(account, member);
+
+        // 잔액 증가
+        account.setBalance(account.getBalance().add(request.getAmount()));
+
+        // 거래 내역 생성
+        Transaction transaction = Transaction.builder()
+                .member(member)
+                .account(account)
+                .transactionType(Transaction.TransactionType.DEPOSIT)
+                .amount(request.getAmount())
+                .balanceAfter(account.getBalance())
+                .description(request.getDescription() != null ? request.getDescription() : "입금")
+                .status(Transaction.TransactionStatus.COMPLETED)
+                .build();
+
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        return TransactionResponse.from(savedTransaction);
+    }
+
+    @Transactional
+    public TransactionResponse withdraw(Long memberId, Long accountId, WithdrawRequest request) {
+        Member member = memberService.findMemberById(memberId);
+        Account account = findAccountById(accountId);
+        
+        validateAccountOwner(account, member);
+
+        // 잔액 확인
+        if (account.getBalance().compareTo(request.getAmount()) < 0) {
+            throw new AccountException(ErrorCode.INSUFFICIENT_BALANCE);
+        }
+
+        // 잔액 감소
+        account.setBalance(account.getBalance().subtract(request.getAmount()));
+
+        // 거래 내역 생성
+        Transaction transaction = Transaction.builder()
+                .member(member)
+                .account(account)
+                .transactionType(Transaction.TransactionType.WITHDRAWAL)
+                .amount(request.getAmount())
+                .balanceAfter(account.getBalance())
+                .description(request.getDescription() != null ? request.getDescription() : "출금")
+                .status(Transaction.TransactionStatus.COMPLETED)
+                .build();
+
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        return TransactionResponse.from(savedTransaction);
+    }
+
+    public Account findAccountById(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
     }

@@ -29,6 +29,7 @@ public enum ErrorCode {
     // Card errors
     CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "카드를 찾을 수 없습니다"),
     INVALID_CARD_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 카드 유형입니다"),
+    INVALID_BENEFIT_TYPE(HttpStatus.BAD_REQUEST, "유효하지 않은 혜택 유형입니다"),
 
     // Savings errors
     SAVINGS_ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "저축 계좌를 찾을 수 없습니다"),
