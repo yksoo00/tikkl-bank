@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tikkl Bank API 테스트</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; padding: 20px; }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .section { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .section h2 { color: #2196F3; margin-bottom: 15px; border-bottom: 2px solid #2196F3; padding-bottom: 10px; }
+        .api-group { margin-bottom: 20px; padding: 15px; background: #fafafa; border-radius: 8px; }
+        .api-group h3 { color: #666; margin-bottom: 10px; }
+        .api-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; flex-wrap: wrap; }
+        .method { padding: 5px 10px; border-radius: 4px; font-weight: bold; min-width: 60px; text-align: center; font-size: 12px; }
+        .get { background: #61affe; color: white; }
+        .post { background: #49cc90; color: white; }
+        .put { background: #fca130; color: white; }
+        .delete { background: #f93e3e; color: white; }
+        input, textarea, select { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        input[type="text"], input[type="number"], input[type="password"], input[type="date"] { width: 150px; }
+        select { width: 150px; }
+        textarea { width: 300px; height: 80px; }
+        button { padding: 8px 15px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; margin: 2px; }
+        button:hover { background: #1976D2; }
+        .response { background: #f8f8f8; border: 1px solid #ddd; border-radius: 4px; padding: 15px; margin-top: 10px; white-space: pre-wrap; font-family: monospace; max-height: 300px; overflow-y: auto; font-size: 12px; }
+        label { font-weight: bold; min-width: 100px; display: inline-block; }
+        .form-row { display: flex; gap: 10px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+        .hidden { display: none; }
+        .tabs { display: flex; gap: 5px; margin-bottom: 15px; flex-wrap: wrap; }
+        .tab { padding: 10px 15px; background: #e0e0e0; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        .tab.active { background: #2196F3; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .info { background: #e3f2fd; padding: 15px; border-radius: 4px; margin-bottom: 15px; }
+        .dashboard-card { display: inline-block; background: #f0f8ff; padding: 15px; border-radius: 8px; margin: 5px; min-width: 200px; }
+        .dashboard-card h4 { color: #1976D2; margin-bottom: 5px; }
+        .dashboard-card .value { font-size: 24px; font-weight: bold; color: #333; }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Tikkl Bank API 테스트</h1>
+        
+        <div class="info">
+            <strong>참고:</strong> API 테스트를 위해 먼저 회원가입 후 로그인하여 memberId를 확인하세요.<br>
+            현재 memberId: <span id="currentMemberId" style="font-weight:bold; color:#1976D2;">없음</span>
+            <span id="currentSavingsId" style="margin-left:20px;">저축계좌 ID: 없음</span>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('auth')">인증</div>
+            <div class="tab" onclick="showTab('dashboard')">대시보드</div>
+            <div class="tab" onclick="showTab('account')">계좌</div>
+            <div class="tab" onclick="showTab('card')">카드</div>
+            <div class="tab" onclick="showTab('payment')">결제/저축</div>
+            <div class="tab" onclick="showTab('benefit')">카드혜택</div>
+            <div class="tab" onclick="showTab('billing')">청구내역</div>
+            <div class="tab" onclick="showTab('transaction')">거래내역</div>
+            <div class="tab" onclick="showTab('product')">금융상품</div>
+        </div>
+
+        <!-- 인증 API -->
+        <div id="auth" class="tab-content active">
+            <div class="section">
+                <h2>🔐 인증 API</h2>
+                
+                <div class="api-group">
+                    <h3>회원가입</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/auth/signup</span></div>
+                    <div class="form-row"><label>아이디:</label><input type="text" id="signup-loginId" placeholder="아이디"></div>
+                    <div class="form-row"><label>비밀번호:</label><input type="password" id="signup-password" placeholder="비밀번호"></div>
+                    <div class="form-row"><label>이름:</label><input type="text" id="signup-name" placeholder="이름"></div>
+                    <div class="form-row"><label>생년월일:</label><input type="date" id="signup-birthDate"></div>
+                    <div class="form-row"><label>전화번호:</label><input type="text" id="signup-phoneNumber" placeholder="010-1234-5678"></div>
+                    <button onclick="signup()">회원가입</button>
+                    <div id="signup-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>로그인</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/auth/login</span></div>
+                    <div class="form-row"><label>아이디:</label><input type="text" id="login-loginId" placeholder="아이디"></div>
+                    <div class="form-row"><label>비밀번호:</label><input type="password" id="login-password" placeholder="비밀번호"></div>
+                    <button onclick="login()">로그인</button>
+                    <div id="login-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 대시보드 -->
+        <div id="dashboard" class="tab-content">
+            <div class="section">
+                <h2>📊 대시보드</h2>
+                <div class="api-group">
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/dashboard</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="dashboard-memberId" placeholder="회원 ID"></div>
+                    <button onclick="getDashboard()">대시보드 조회</button>
+                    <div id="dashboard-cards" style="margin-top:15px;"></div>
+                    <div id="dashboard-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 계좌 API -->
+        <div id="account" class="tab-content">
+            <div class="section">
+                <h2>🏧 계좌 API</h2>
+                
+                <div class="api-group">
+                    <h3>계좌 목록 조회</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/accounts</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="accounts-memberId" placeholder="회원 ID">
+                    <button onclick="getAccounts()">조회</button></div>
+                    <div id="accounts-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>계좌 등록</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/members/{memberId}/accounts</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="account-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>계좌번호:</label><input type="text" id="account-number" placeholder="123-456-789"></div>
+                    <div class="form-row"><label>은행명:</label><input type="text" id="account-bankName" placeholder="국민은행"></div>
+                    <div class="form-row"><label>주계좌:</label><select id="account-isPrimary"><option value="false">아니오</option><option value="true">예</option></select></div>
+                    <button onclick="registerAccount()">등록</button>
+                    <div id="account-register-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>입금</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/members/{memberId}/accounts/{accountId}/deposit</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="deposit-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>계좌 ID:</label><input type="number" id="deposit-accountId" placeholder="계좌 ID"></div>
+                    <div class="form-row"><label>입금액:</label><input type="number" id="deposit-amount" placeholder="금액"></div>
+                    <div class="form-row"><label>설명:</label><input type="text" id="deposit-description" placeholder="급여 입금"></div>
+                    <button onclick="deposit()">입금</button>
+                    <div id="deposit-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>출금</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/members/{memberId}/accounts/{accountId}/withdraw</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="withdraw-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>계좌 ID:</label><input type="number" id="withdraw-accountId" placeholder="계좌 ID"></div>
+                    <div class="form-row"><label>출금액:</label><input type="number" id="withdraw-amount" placeholder="금액"></div>
+                    <div class="form-row"><label>설명:</label><input type="text" id="withdraw-description" placeholder="ATM 출금"></div>
+                    <button onclick="withdraw()">출금</button>
+                    <div id="withdraw-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 카드 API -->
+        <div id="card" class="tab-content">
+            <div class="section">
+                <h2>💳 카드 API</h2>
+                
+                <div class="api-group">
+                    <h3>카드 목록 조회</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/cards</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="cards-memberId" placeholder="회원 ID">
+                    <button onclick="getCards()">조회</button></div>
+                    <div id="cards-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>카드 등록 (월 사용 목표 설정)</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/members/{memberId}/cards</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="card-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>카드번호:</label><input type="text" id="card-number" placeholder="1234-5678-9012-3456"></div>
+                    <div class="form-row"><label>카드명:</label><input type="text" id="card-name" placeholder="신한카드 Deep Dream"></div>
+                    <div class="form-row"><label>카드사:</label><input type="text" id="card-company" placeholder="신한카드"></div>
+                    <div class="form-row"><label>카드유형:</label><select id="card-type"><option value="CREDIT">신용카드</option><option value="DEBIT">체크카드</option></select></div>
+                    <div class="form-row"><label>유효기간:</label><input type="date" id="card-expiry"></div>
+                    <div class="form-row"><label>보너스 저축(%):</label><input type="number" id="card-bonus" placeholder="0" step="0.1"></div>
+                    <div class="form-row"><label>월 목표 사용액:</label><input type="number" id="card-target" placeholder="500000"></div>
+                    <div class="form-row"><label>혜택 정보:</label><input type="text" id="card-benefits" placeholder="카페 30% 할인"></div>
+                    <button onclick="registerCard()">등록</button>
+                    <div id="card-register-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>카드 상세 조회 (혜택/청구/달성률)</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/cards/{cardId}/detail</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="card-detail-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>카드 ID:</label><input type="number" id="card-detail-cardId" placeholder="카드 ID"></div>
+                    <button onclick="getCardDetail()">상세 조회</button>
+                    <div id="card-detail-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>저축 계좌 연결</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/members/{memberId}/cards/{cardId}/link-savings</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="link-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>카드 ID:</label><input type="number" id="link-cardId" placeholder="카드 ID"></div>
+                    <div class="form-row"><label>저축계좌 ID:</label><input type="number" id="link-savingsId" placeholder="저축계좌 ID"></div>
+                    <div class="form-row"><label>월 목표:</label><input type="number" id="link-target" placeholder="500000"></div>
+                    <button onclick="linkSavingsAccount()">연결</button>
+                    <div id="link-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 결제/저축 API -->
+        <div id="payment" class="tab-content">
+            <div class="section">
+                <h2>💰 결제 및 자동 저축</h2>
+                
+                <div class="api-group">
+                    <h3>카드 결제 (자동 저축)</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/members/{memberId}/cards/{cardId}/payment</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="payment-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>카드 ID:</label><input type="number" id="payment-cardId" placeholder="카드 ID"></div>
+                    <div class="form-row"><label>결제 금액:</label><input type="number" id="payment-amount" placeholder="50000"></div>
+                    <div class="form-row"><label>가맹점:</label><input type="text" id="payment-merchant" placeholder="스타벅스 강남점"></div>
+                    <div class="form-row"><label>카테고리:</label>
+                        <select id="payment-category">
+                            <option value="식비">식비</option>
+                            <option value="교통">교통</option>
+                            <option value="쇼핑">쇼핑</option>
+                            <option value="문화">문화</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                    <div class="form-row"><label>설명:</label><input type="text" id="payment-description" placeholder="커피 구매"></div>
+                    <button onclick="processPayment()">결제</button>
+                    <div id="payment-result" style="margin-top:10px;"></div>
+                    <div id="payment-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>저축 계좌 조회</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/savings</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="savings-memberId" placeholder="회원 ID">
+                    <button onclick="getSavingsAccount()">조회</button></div>
+                    <div id="savings-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 카드 혜택 API -->
+        <div id="benefit" class="tab-content">
+            <div class="section">
+                <h2>🎁 카드 혜택</h2>
+                
+                <div class="api-group">
+                    <h3>혜택 목록 조회</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/cards/{cardId}/benefits</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="benefits-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>카드 ID:</label><input type="number" id="benefits-cardId" placeholder="카드 ID"></div>
+                    <button onclick="getBenefits()">조회</button>
+                    <div id="benefits-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>혜택 추가</h3>
+                    <div class="api-item"><span class="method post">POST</span><span>/api/members/{memberId}/cards/{cardId}/benefits</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="benefit-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>카드 ID:</label><input type="number" id="benefit-cardId" placeholder="카드 ID"></div>
+                    <div class="form-row"><label>혜택명:</label><input type="text" id="benefit-name" placeholder="카페 할인"></div>
+                    <div class="form-row"><label>설명:</label><input type="text" id="benefit-description" placeholder="스타벅스 30% 할인"></div>
+                    <div class="form-row"><label>혜택유형:</label>
+                        <select id="benefit-type">
+                            <option value="DISCOUNT">할인</option>
+                            <option value="CASHBACK">캐시백</option>
+                            <option value="POINT">포인트</option>
+                            <option value="MILEAGE">마일리지</option>
+                        </select>
+                    </div>
+                    <div class="form-row"><label>할인율(%):</label><input type="number" id="benefit-rate" placeholder="30" step="0.1"></div>
+                    <div class="form-row"><label>최대할인액:</label><input type="number" id="benefit-max" placeholder="5000"></div>
+                    <div class="form-row"><label>목표금액:</label><input type="number" id="benefit-target" placeholder="300000"></div>
+                    <div class="form-row"><label>카테고리:</label><input type="text" id="benefit-category" placeholder="식비"></div>
+                    <button onclick="addBenefit()">추가</button>
+                    <div id="benefit-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 청구 내역 API -->
+        <div id="billing" class="tab-content">
+            <div class="section">
+                <h2>📃 청구 내역</h2>
+                
+                <div class="api-group">
+                    <h3>청구 내역 조회</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/cards/{cardId}/billings</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="billing-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>카드 ID:</label><input type="number" id="billing-cardId" placeholder="카드 ID"></div>
+                    <button onclick="getBillings()">조회</button>
+                    <div id="billing-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 거래내역 API -->
+        <div id="transaction" class="tab-content">
+            <div class="section">
+                <h2>📋 거래내역 API</h2>
+                
+                <div class="api-group">
+                    <h3>최근 거래 내역</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/transactions/recent</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="recent-tx-memberId" placeholder="회원 ID">
+                    <button onclick="getRecentTransactions()">조회</button></div>
+                    <div id="recent-tx-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>거래 내역 검색</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/members/{memberId}/transactions</span></div>
+                    <div class="form-row"><label>회원 ID:</label><input type="number" id="tx-memberId" placeholder="회원 ID"></div>
+                    <div class="form-row"><label>거래유형:</label>
+                        <select id="tx-type">
+                            <option value="">전체</option>
+                            <option value="DEPOSIT">입금</option>
+                            <option value="WITHDRAWAL">출금</option>
+                            <option value="TRANSFER">이체</option>
+                            <option value="PAYMENT">결제</option>
+                            <option value="SAVINGS">저축</option>
+                            <option value="INTEREST">이자</option>
+                        </select>
+                    </div>
+                    <div class="form-row"><label>검색어:</label><input type="text" id="tx-keyword" placeholder="검색어"></div>
+                    <button onclick="searchTransactions()">검색</button>
+                    <div id="tx-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 금융상품 API -->
+        <div id="product" class="tab-content">
+            <div class="section">
+                <h2>📊 금융상품 API</h2>
+                
+                <div class="api-group">
+                    <h3>전체 상품 목록</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/products</span>
+                    <button onclick="getAllProducts()">조회</button></div>
+                    <div id="products-response" class="response hidden"></div>
+                </div>
+
+                <div class="api-group">
+                    <h3>유형별 상품 조회</h3>
+                    <div class="api-item"><span class="method get">GET</span><span>/api/products/type/{productType}</span></div>
+                    <div class="form-row"><label>상품유형:</label>
+                        <select id="product-type">
+                            <option value="SAVINGS">적금</option>
+                            <option value="DEPOSIT">예금</option>
+                            <option value="FUND">펀드</option>
+                            <option value="INSURANCE">보험</option>
+                        </select>
+                        <button onclick="getProductsByType()">조회</button>
+                    </div>
+                    <div id="products-type-response" class="response hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMemberId = null;
+        let currentSavingsId = null;
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function showResponse(elementId, data, success = true) {
+            const el = document.getElementById(elementId);
+            el.classList.remove('hidden');
+            el.textContent = JSON.stringify(data, null, 2);
+            el.style.borderColor = success ? '#4caf50' : '#f44336';
+        }
+
+        async function apiCall(url, method = 'GET', body = null) {
+            const options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (body) options.body = JSON.stringify(body);
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                return { success: response.ok, data };
+            } catch (error) {
+                return { success: false, data: { error: error.message } };
+            }
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ko-KR').format(amount) + '원';
+        }
+
+        // Auth
+        async function signup() {
+            const body = {
+                loginId: document.getElementById('signup-loginId').value,
+                password: document.getElementById('signup-password').value,
+                name: document.getElementById('signup-name').value,
+                birthDate: document.getElementById('signup-birthDate').value,
+                phoneNumber: document.getElementById('signup-phoneNumber').value
+            };
+            const result = await apiCall('/api/auth/signup', 'POST', body);
+            showResponse('signup-response', result.data, result.success);
+            if (result.success && result.data.data) {
+                currentMemberId = result.data.data.id;
+                document.getElementById('currentMemberId').textContent = currentMemberId;
+                // 저축 계좌 조회
+                const savingsResult = await apiCall(`/api/members/${currentMemberId}/savings`);
+                if (savingsResult.success && savingsResult.data.data) {
+                    currentSavingsId = savingsResult.data.data.id;
+                    document.getElementById('currentSavingsId').textContent = '저축계좌 ID: ' + currentSavingsId;
+                }
+            }
+        }
+
+        async function login() {
+            const body = {
+                loginId: document.getElementById('login-loginId').value,
+                password: document.getElementById('login-password').value
+            };
+            const result = await apiCall('/api/auth/login', 'POST', body);
+            showResponse('login-response', result.data, result.success);
+            if (result.success && result.data.data) {
+                currentMemberId = result.data.data.id;
+                document.getElementById('currentMemberId').textContent = currentMemberId;
+                const savingsResult = await apiCall(`/api/members/${currentMemberId}/savings`);
+                if (savingsResult.success && savingsResult.data.data) {
+                    currentSavingsId = savingsResult.data.data.id;
+                    document.getElementById('currentSavingsId').textContent = '저축계좌 ID: ' + currentSavingsId;
+                }
+            }
+        }
+
+        // Dashboard
+        async function getDashboard() {
+            const id = document.getElementById('dashboard-memberId').value;
+            const result = await apiCall(`/api/members/${id}/dashboard`);
+            showResponse('dashboard-response', result.data, result.success);
+            if (result.success && result.data.data) {
+                const d = result.data.data;
+                document.getElementById('dashboard-cards').innerHTML = `
+                    <div class="dashboard-card"><h4>💰 총 저축 잔액</h4><div class="value">${formatCurrency(d.totalSavingsBalance)}</div></div>
+                    <div class="dashboard-card"><h4>📈 누적 이자</h4><div class="value">${formatCurrency(d.totalInterestEarned)}</div></div>
+                    <div class="dashboard-card"><h4>📅 예상 월 이자</h4><div class="value">${formatCurrency(d.expectedMonthlyInterest)}</div></div>
+                    <div class="dashboard-card"><h4>⏰ 만기까지</h4><div class="value">${d.remainingDays}일</div></div>
+                    <div class="dashboard-card"><h4>💳 이번달 카드 사용</h4><div class="value">${formatCurrency(d.totalCardSpendingThisMonth)}</div></div>
+                    <div class="dashboard-card"><h4>🎁 이번달 혜택</h4><div class="value">${formatCurrency(d.totalBenefitThisMonth)}</div></div>
+                    <div class="dashboard-card"><h4>📃 다음달 청구</h4><div class="value">${formatCurrency(d.nextMonthBilling)}</div></div>
+                    <div class="dashboard-card"><h4>🏧 총 계좌 잔액</h4><div class="value">${formatCurrency(d.totalAccountBalance)}</div></div>
+                `;
+            }
+        }
+
+        // Accounts
+        async function getAccounts() {
+            const id = document.getElementById('accounts-memberId').value;
+            const result = await apiCall(`/api/members/${id}/accounts`);
+            showResponse('accounts-response', result.data, result.success);
+        }
+
+        async function registerAccount() {
+            const id = document.getElementById('account-memberId').value;
+            const body = {
+                accountNumber: document.getElementById('account-number').value,
+                bankName: document.getElementById('account-bankName').value,
+                isPrimary: document.getElementById('account-isPrimary').value === 'true'
+            };
+            const result = await apiCall(`/api/members/${id}/accounts`, 'POST', body);
+            showResponse('account-register-response', result.data, result.success);
+        }
+
+        async function deposit() {
+            const memberId = document.getElementById('deposit-memberId').value;
+            const accountId = document.getElementById('deposit-accountId').value;
+            const body = {
+                amount: parseFloat(document.getElementById('deposit-amount').value),
+                description: document.getElementById('deposit-description').value
+            };
+            const result = await apiCall(`/api/members/${memberId}/accounts/${accountId}/deposit`, 'POST', body);
+            showResponse('deposit-response', result.data, result.success);
+        }
+
+        async function withdraw() {
+            const memberId = document.getElementById('withdraw-memberId').value;
+            const accountId = document.getElementById('withdraw-accountId').value;
+            const body = {
+                amount: parseFloat(document.getElementById('withdraw-amount').value),
+                description: document.getElementById('withdraw-description').value
+            };
+            const result = await apiCall(`/api/members/${memberId}/accounts/${accountId}/withdraw`, 'POST', body);
+            showResponse('withdraw-response', result.data, result.success);
+        }
+
+        // Cards
+        async function getCards() {
+            const id = document.getElementById('cards-memberId').value;
+            const result = await apiCall(`/api/members/${id}/cards`);
+            showResponse('cards-response', result.data, result.success);
+        }
+
+        async function registerCard() {
+            const id = document.getElementById('card-memberId').value;
+            const body = {
+                cardNumber: document.getElementById('card-number').value,
+                cardName: document.getElementById('card-name').value,
+                cardCompany: document.getElementById('card-company').value,
+                cardType: document.getElementById('card-type').value,
+                expiryDate: document.getElementById('card-expiry').value,
+                bonusSavingsRatio: parseFloat(document.getElementById('card-bonus').value) || 0,
+                monthlySpendingTarget: parseFloat(document.getElementById('card-target').value) || 0,
+                benefits: document.getElementById('card-benefits').value
+            };
+            const result = await apiCall(`/api/members/${id}/cards`, 'POST', body);
+            showResponse('card-register-response', result.data, result.success);
+        }
+
+        async function getCardDetail() {
+            const memberId = document.getElementById('card-detail-memberId').value;
+            const cardId = document.getElementById('card-detail-cardId').value;
+            const result = await apiCall(`/api/members/${memberId}/cards/${cardId}/detail`);
+            showResponse('card-detail-response', result.data, result.success);
+        }
+
+        async function linkSavingsAccount() {
+            const memberId = document.getElementById('link-memberId').value;
+            const cardId = document.getElementById('link-cardId').value;
+            const body = {
+                savingsAccountId: parseInt(document.getElementById('link-savingsId').value),
+                monthlySpendingTarget: parseFloat(document.getElementById('link-target').value) || 0
+            };
+            const result = await apiCall(`/api/members/${memberId}/cards/${cardId}/link-savings`, 'POST', body);
+            showResponse('link-response', result.data, result.success);
+        }
+
+        // Payment
+        async function processPayment() {
+            const memberId = document.getElementById('payment-memberId').value;
+            const cardId = document.getElementById('payment-cardId').value;
+            const body = {
+                amount: parseFloat(document.getElementById('payment-amount').value),
+                merchant: document.getElementById('payment-merchant').value,
+                category: document.getElementById('payment-category').value,
+                description: document.getElementById('payment-description').value
+            };
+            const result = await apiCall(`/api/members/${memberId}/cards/${cardId}/payment`, 'POST', body);
+            showResponse('payment-response', result.data, result.success);
+            if (result.success && result.data.data) {
+                const d = result.data.data;
+                document.getElementById('payment-result').innerHTML = `
+                    <div style="padding:10px; background:#e8f5e9; border-radius:4px;">
+                        <strong>✅ 결제 완료!</strong><br>
+                        결제금액: ${formatCurrency(d.paymentAmount)}<br>
+                        자동저축: <span class="success">${formatCurrency(d.savingsAmount)}</span><br>
+                        받은혜택: <span class="success">${formatCurrency(d.benefitAmount)}</span><br>
+                        이번달 카드사용: ${formatCurrency(d.cardMonthlyTotal)}<br>
+                        다음달 청구예정: ${formatCurrency(d.nextBillingAmount)}
+                    </div>
+                `;
+            }
+        }
+
+        async function getSavingsAccount() {
+            const id = document.getElementById('savings-memberId').value;
+            const result = await apiCall(`/api/members/${id}/savings`);
+            showResponse('savings-response', result.data, result.success);
+        }
+
+        // Benefits
+        async function getBenefits() {
+            const memberId = document.getElementById('benefits-memberId').value;
+            const cardId = document.getElementById('benefits-cardId').value;
+            const result = await apiCall(`/api/members/${memberId}/cards/${cardId}/benefits`);
+            showResponse('benefits-response', result.data, result.success);
+        }
+
+        async function addBenefit() {
+            const memberId = document.getElementById('benefit-memberId').value;
+            const cardId = document.getElementById('benefit-cardId').value;
+            const body = {
+                benefitName: document.getElementById('benefit-name').value,
+                benefitDescription: document.getElementById('benefit-description').value,
+                benefitType: document.getElementById('benefit-type').value,
+                discountRate: parseFloat(document.getElementById('benefit-rate').value),
+                maxDiscount: parseFloat(document.getElementById('benefit-max').value) || null,
+                targetAmount: parseFloat(document.getElementById('benefit-target').value) || 0,
+                category: document.getElementById('benefit-category').value
+            };
+            const result = await apiCall(`/api/members/${memberId}/cards/${cardId}/benefits`, 'POST', body);
+            showResponse('benefit-response', result.data, result.success);
+        }
+
+        // Billings
+        async function getBillings() {
+            const memberId = document.getElementById('billing-memberId').value;
+            const cardId = document.getElementById('billing-cardId').value;
+            const result = await apiCall(`/api/members/${memberId}/cards/${cardId}/billings`);
+            showResponse('billing-response', result.data, result.success);
+        }
+
+        // Transactions
+        async function getRecentTransactions() {
+            const id = document.getElementById('recent-tx-memberId').value;
+            const result = await apiCall(`/api/members/${id}/transactions/recent`);
+            showResponse('recent-tx-response', result.data, result.success);
+        }
+
+        async function searchTransactions() {
+            const id = document.getElementById('tx-memberId').value;
+            const type = document.getElementById('tx-type').value;
+            const keyword = document.getElementById('tx-keyword').value;
+            let url = `/api/members/${id}/transactions?`;
+            if (type) url += `transactionType=${type}&`;
+            if (keyword) url += `keyword=${keyword}&`;
+            const result = await apiCall(url);
+            showResponse('tx-response', result.data, result.success);
+        }
+
+        // Products
+        async function getAllProducts() {
+            const result = await apiCall('/api/products');
+            showResponse('products-response', result.data, result.success);
+        }
+
+        async function getProductsByType() {
+            const type = document.getElementById('product-type').value;
+            const result = await apiCall(`/api/products/type/${type}`);
+            showResponse('products-type-response', result.data, result.success);
+        }
+    </script>
+</body>
+</html>
