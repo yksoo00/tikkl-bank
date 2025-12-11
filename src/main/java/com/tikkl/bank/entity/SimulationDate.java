@@ -1,5 +1,6 @@
 package com.tikkl.bank.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,5 +27,6 @@ public class SimulationDate {
     /**
      * 실제 시뮬레이션 날짜
      */
+    @Column(name = "current_dt")
     private LocalDate currentDate;
 }
