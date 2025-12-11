@@ -1,706 +1,1363 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-  <meta charset="UTF-8"/>
-  <title>TIKKL BANK Dev Console</title>
-  <link rel="stylesheet" href="style.css"/>
-</head>
-<body>
-<div class="app-shell">
-  <!-- 헤더 -->
-  <header class="app-header">
-    <div class="brand">
-      <div class="brand-logo">T</div>
-      <div class="brand-text">
-        <div class="brand-title">TIKKL BANK Dev</div>
-        <div class="brand-subtitle">내 API를 바로 눌러보는 토스 느낌 콘솔</div>
-      </div>
-    </div>
-    <div class="current-state">
-      <div class="state-pill">
-        현재 Member ID: <span id="currentMemberId">-</span>
-      </div>
-      <div class="state-pill">
-        선택 Account ID: <span id="currentAccountId">-</span>
-      </div>
-      <div class="state-pill">
-        선택 Card ID: <span id="currentCardId">-</span>
-      </div>
-    </div>
-  </header>
+    <head>
+        <meta charset="UTF-8" />
+        <title>TIKKL BANK Dev Console</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="app-shell">
+            <!-- 헤더 -->
+            <header class="app-header">
+                <div class="brand">
+                    <div class="brand-logo">T</div>
+                    <div class="brand-text"></div>
+                </div>
+                <div class="current-state">
+                    <div class="state-pill">
+                        <span id="currentMemberId">-</span>
+                    </div>
+                </div>
+            </header>
 
-  <!-- 메인 영역 -->
-  <div class="app-body">
-    <!-- 사이드 네비 -->
-    <nav class="side-nav">
-      <button class="nav-item active" data-section="section-auth">1. 회원 / 로그인</button>
-      <button class="nav-item" data-section="section-member">2. 회원 설정</button>
-      <button class="nav-item" data-section="section-home">3. 대시보드 / 마이페이지</button>
-      <button class="nav-item" data-section="section-account">4. 계좌(Account)</button>
-      <button class="nav-item" data-section="section-savings">5. 티끌통장(Savings)</button>
-      <button class="nav-item" data-section="section-financial">6. 금융상품(Product)</button>
-      <button class="nav-item" data-section="section-cardproduct">7. 마스터카드(CardProduct)</button>
-      <button class="nav-item" data-section="section-card">8. 카드(Card)</button>
-      <button class="nav-item" data-section="section-transaction">9. 거래 내역(Transaction)</button>
-      <button class="nav-item" data-section="section-simulate">10. 시뮬레이션</button>
-    </nav>
+            <!-- 메인 영역 -->
+            <div class="app-body">
+                <!-- 사이드 네비 -->
+                <nav class="side-nav">
+                    <button class="nav-item active" data-section="section-auth">
+                        1. 회원 / 로그인
+                    </button>
+                    <button class="nav-item" data-section="section-member">
+                        2. 회원 설정
+                    </button>
+                    <button class="nav-item" data-section="section-home">
+                        3. 대시보드 / 마이페이지
+                    </button>
+                    <button class="nav-item" data-section="section-account">
+                        4. 계좌(Account)
+                    </button>
+                    <button class="nav-item" data-section="section-savings">
+                        5. 티끌통장(Savings)
+                    </button>
+                    <button class="nav-item" data-section="section-financial">
+                        6. 금융상품(Product)
+                    </button>
+                    <button class="nav-item" data-section="section-cardproduct">
+                        7. 마스터카드(CardProduct)
+                    </button>
+                    <button class="nav-item" data-section="section-card">
+                        8. 카드(Card)
+                    </button>
+                    <button class="nav-item" data-section="section-transaction">
+                        9. 거래 내역(Transaction)
+                    </button>
+                    <button class="nav-item" data-section="section-simulate">
+                        10. 시뮬레이션
+                    </button>
+                </nav>
 
-    <!-- 컨텐츠 + 로그 -->
-    <main class="content-area">
-      <!-- 섹션: 회원가입 / 로그인 (MemberController / AuthController) -->
-      <section id="section-auth" class="section visible">
-        <h2>1. 회원가입 / 로그인</h2>
+                <!-- 컨텐츠 + 로그 -->
+                <main class="content-area">
+                    <!-- 섹션: 회원가입 / 로그인 (MemberController / AuthController) -->
+                    <section id="section-auth" class="section visible">
+                        <h2>1. 회원가입 / 로그인</h2>
 
-        <div class="card-grid">
-          <!-- 회원가입 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>회원가입 (POST /members/signup)</h3>
-              <span class="card-tag">MemberController</span>
+                        <div class="card-grid">
+                            <!-- 회원가입 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>회원가입 (POST /members/signup)</h3>
+                                    <span class="card-tag"
+                                        >MemberController</span
+                                    >
+                                </div>
+                                <form id="form-signup" class="form-grid">
+                                    <label>
+                                        로그인 ID
+                                        <input
+                                            type="text"
+                                            name="loginId"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        비밀번호
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        이름
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        생년월일 (YYYY-MM-DD)
+                                        <input
+                                            type="text"
+                                            name="birthDate"
+                                            placeholder="1998-01-01"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        전화번호
+                                        <input
+                                            type="text"
+                                            name="phoneNumber"
+                                            placeholder="010-1234-5678"
+                                            required
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        회원가입
+                                    </button>
+                                    <p class="help-text">
+                                        성공 시 <code>MemberResponse</code> 가
+                                        내려오고, ID를 현재 Member로 설정합니다.
+                                    </p>
+                                </form>
+                            </div>
+
+                            <!-- 로그인 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>로그인 (POST /members/login)</h3>
+                                    <span class="card-tag"
+                                        >MemberController</span
+                                    >
+                                </div>
+                                <form id="form-login" class="form-grid">
+                                    <label>
+                                        로그인 ID
+                                        <input
+                                            type="text"
+                                            name="loginId"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        비밀번호
+                                        <input
+                                            type="password"
+                                            name="password"
+                                            required
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        로그인
+                                    </button>
+                                    <p class="help-text">
+                                        성공 시 <code>MemberResponse</code> 의
+                                        id를 현재 Member로 설정합니다.
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 회원 설정 -->
+                    <section id="section-member" class="section">
+                        <h2>2. 회원 정보 / 설정 (MemberController)</h2>
+                        <div class="card-grid">
+                            <!-- 회원 정보 조회 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        회원 정보 조회 (GET /members/{memberId})
+                                    </h3>
+                                </div>
+                                <form id="form-get-member" class="form-inline">
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-outline">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- 저축 설정 변경 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        저축 설정 변경 (PUT
+                                        /members/{memberId}/settings/savings)
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-savings-settings"
+                                    class="form-grid"
+                                >
+                                    <label>
+                                        Member ID (선택)
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        저축 비율 (예: 0.3)
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            name="savingsRatio"
+                                        />
+                                    </label>
+                                    <label>
+                                        자동 저축 여부
+                                        <select name="autoSavingsEnabled">
+                                            <option value="">변경 안함</option>
+                                            <option value="true">사용</option>
+                                            <option value="false">
+                                                사용 안함
+                                            </option>
+                                        </select>
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        변경
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- 온보딩 완료 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        온보딩 완료 처리 (PUT
+                                        /members/{memberId}/onboarding)
+                                    </h3>
+                                </div>
+                                <form id="form-onboarding" class="form-inline">
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        온보딩 완료
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 홈 / 마이페이지 -->
+                    <section id="section-home" class="section">
+                        <h2>3. 대시보드 / 마이페이지 (HomeController)</h2>
+                        <div class="card-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>홈 (GET /members/{memberId}/home)</h3>
+                                </div>
+                                <form id="form-home" class="form-inline">
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        마이페이지 (GET
+                                        /members/{memberId}/home/mypage)
+                                    </h3>
+                                </div>
+                                <form id="form-mypage" class="form-inline">
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 계좌 -->
+                    <section id="section-account" class="section">
+                        <h2>4. 계좌(Account) (AccountController)</h2>
+
+                        <div class="card-grid">
+                            <!-- 계좌 등록 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        계좌 등록 (POST
+                                        /members/{memberId}/accounts)
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-account-create"
+                                    class="form-grid"
+                                >
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        계좌번호
+                                        <input
+                                            type="text"
+                                            name="accountNumber"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        은행명
+                                        <input
+                                            type="text"
+                                            name="bankName"
+                                            required
+                                        />
+                                    </label>
+                                    <label class="checkbox-row">
+                                        <input
+                                            type="checkbox"
+                                            name="isPrimary"
+                                        />
+                                        <span>주 계좌로 설정</span>
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        등록
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- 계좌 목록 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        계좌 목록 조회 (GET
+                                        /members/{memberId}/accounts)
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-account-list"
+                                    class="form-inline"
+                                >
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-outline">
+                                        조회
+                                    </button>
+                                </form>
+                                <div
+                                    id="account-list"
+                                    class="table-wrapper small"
+                                >
+                                    <!-- JS로 테이블 렌더링 -->
+                                </div>
+                                <p class="help-text">
+                                    리스트에서 행을 클릭하면
+                                    <strong>선택 Account ID</strong> 로
+                                    설정됩니다.
+                                </p>
+                            </div>
+
+                            <!-- 계좌 상세 & 주계좌 / 삭제 / 입출금 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>계좌 상세 / 설정 / 입출금</h3>
+                                </div>
+
+                                <form
+                                    id="form-account-detail"
+                                    class="form-inline"
+                                >
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        Account ID
+                                        <input
+                                            type="number"
+                                            name="accountId"
+                                            placeholder="선택 Account 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-outline">
+                                        상세 조회
+                                    </button>
+                                </form>
+
+                                <form
+                                    id="form-account-primary"
+                                    class="form-inline"
+                                >
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        Account ID
+                                        <input
+                                            type="number"
+                                            name="accountId"
+                                            placeholder="선택 Account 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-outline">
+                                        주 계좌 설정
+                                    </button>
+                                </form>
+
+                                <form
+                                    id="form-account-delete"
+                                    class="form-inline danger-zone"
+                                >
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        Account ID
+                                        <input
+                                            type="number"
+                                            name="accountId"
+                                            placeholder="선택 Account 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-danger">
+                                        계좌 삭제
+                                    </button>
+                                </form>
+
+                                <hr class="card-divider" />
+
+                                <form
+                                    id="form-account-deposit"
+                                    class="form-grid"
+                                >
+                                    <h4>
+                                        입금 (POST
+                                        /members/{memberId}/accounts/{accountId}/deposit)
+                                    </h4>
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        Account ID
+                                        <input
+                                            type="number"
+                                            name="accountId"
+                                            placeholder="선택 Account 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        금액
+                                        <input
+                                            type="number"
+                                            step="1"
+                                            name="amount"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        메모(선택)
+                                        <input
+                                            type="text"
+                                            name="description"
+                                            placeholder="입금 메모"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        입금
+                                    </button>
+                                </form>
+
+                                <form
+                                    id="form-account-withdraw"
+                                    class="form-grid"
+                                >
+                                    <h4>
+                                        출금 (POST
+                                        /members/{memberId}/accounts/{accountId}/withdraw)
+                                    </h4>
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        Account ID
+                                        <input
+                                            type="number"
+                                            name="accountId"
+                                            placeholder="선택 Account 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        금액
+                                        <input
+                                            type="number"
+                                            step="1"
+                                            name="amount"
+                                            required
+                                        />
+                                    </label>
+                                    <label>
+                                        메모(선택)
+                                        <input
+                                            type="text"
+                                            name="description"
+                                            placeholder="출금 메모"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        출금
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 티끌통장 -->
+                    <section id="section-savings" class="section">
+                        <h2>5. 티끌통장(Savings) (SavingsController)</h2>
+                        <div class="card-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        티끌통장 조회 (GET
+                                        /members/{memberId}/savings)
+                                    </h3>
+                                </div>
+                                <form id="form-savings-get" class="form-inline">
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        금융상품 연결 (PUT
+                                        /members/{memberId}/savings/product)
+                                    </h3>
+                                </div>
+                                <form id="form-savings-link" class="form-grid">
+                                    <label>
+                                        Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                        />
+                                    </label>
+                                    <label>
+                                        Product ID
+                                        <input
+                                            type="number"
+                                            name="productId"
+                                            required
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        연결
+                                    </button>
+                                    <p class="help-text">
+                                        <code
+                                            >LinkProductRequest.productId</code
+                                        >
+                                        로 전송됩니다.
+                                    </p>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 금융상품 -->
+                    <section id="section-financial" class="section">
+                        <h2>6. 금융상품 (FinancialProductController)</h2>
+                        <div class="card-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>전체 상품 조회 (GET /api/products)</h3>
+                                </div>
+                                <form
+                                    id="form-products-all"
+                                    class="form-inline"
+                                >
+                                    <button type="submit" class="btn-primary">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        타입별 조회 (GET
+                                        /api/products/type/{productType})
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-products-type"
+                                    class="form-inline"
+                                >
+                                    <label>
+                                        productType
+                                        <select name="productType">
+                                            <option value="SAVINGS">
+                                                SAVINGS
+                                            </option>
+                                            <option value="FIXED">FIXED</option>
+                                            <option value="FUND">FUND</option>
+                                        </select>
+                                    </label>
+                                    <button type="submit" class="btn-outline">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        단일 상품 조회 (GET
+                                        /api/products/{productId})
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-products-one"
+                                    class="form-inline"
+                                >
+                                    <label>
+                                        productId
+                                        <input
+                                            type="number"
+                                            name="productId"
+                                            required
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-outline">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>상품 등록 (POST /api/products)</h3>
+                                    <span class="card-tag">관리자용</span>
+                                </div>
+                                <form
+                                    id="form-products-create"
+                                    class="form-grid"
+                                >
+                                    <label
+                                        >상품명
+                                        <input type="text" name="productName"
+                                    /></label>
+                                    <label
+                                        >상품코드
+                                        <input type="text" name="productCode"
+                                    /></label>
+                                    <label
+                                        >상품타입
+                                        <select name="productType">
+                                            <option value="SAVINGS">
+                                                SAVINGS
+                                            </option>
+                                            <option value="FIXED">FIXED</option>
+                                            <option value="FUND">FUND</option>
+                                        </select>
+                                    </label>
+                                    <label
+                                        >제공사
+                                        <input type="text" name="provider"
+                                    /></label>
+                                    <label
+                                        >기본 금리
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            name="interestRate"
+                                    /></label>
+                                    <label
+                                        >최대 금리
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            name="maxInterestRate"
+                                    /></label>
+                                    <label
+                                        >최소 기간(개월)
+                                        <input type="number" name="minTerm"
+                                    /></label>
+                                    <label
+                                        >최대 기간(개월)
+                                        <input type="number" name="maxTerm"
+                                    /></label>
+                                    <label
+                                        >최소 금액
+                                        <input type="number" name="minAmount"
+                                    /></label>
+                                    <label
+                                        >최대 금액
+                                        <input type="number" name="maxAmount"
+                                    /></label>
+                                    <label
+                                        >설명
+                                        <textarea
+                                            name="description"
+                                            rows="2"
+                                        ></textarea>
+                                    </label>
+                                    <label
+                                        >약관 요약
+                                        <textarea
+                                            name="terms"
+                                            rows="2"
+                                        ></textarea>
+                                    </label>
+                                    <label
+                                        >혜택 요약
+                                        <textarea
+                                            name="benefits"
+                                            rows="2"
+                                        ></textarea>
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        등록
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 마스터 카드 -->
+                    <section id="section-cardproduct" class="section">
+                        <h2>7. 마스터카드 (CardProductController)</h2>
+
+                        <div class="card-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        전체 마스터카드 조회 (GET
+                                        /card-products)
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-cardproducts-all"
+                                    class="form-inline"
+                                >
+                                    <button type="submit" class="btn-primary">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        마스터카드 상세 (GET
+                                        /card-products/{id})
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-cardproducts-one"
+                                    class="form-inline"
+                                >
+                                    <label>
+                                        productId
+                                        <input
+                                            type="number"
+                                            name="id"
+                                            required
+                                        />
+                                    </label>
+                                    <button type="submit" class="btn-outline">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        마스터카드 생성 (POST /card-products)
+                                    </h3>
+                                </div>
+                                <form
+                                    id="form-cardproducts-create"
+                                    class="form-grid"
+                                >
+                                    <label
+                                        >카드 이름
+                                        <input type="text" name="name"
+                                    /></label>
+                                    <label
+                                        >카드사
+                                        <input type="text" name="company"
+                                    /></label>
+                                    <label
+                                        >카드 타입
+                                        <select name="cardType">
+                                            <option value="CREDIT">
+                                                CREDIT
+                                            </option>
+                                        </select>
+                                    </label>
+                                    <label
+                                        >연회비
+                                        <input type="number" name="annualFee"
+                                    /></label>
+                                    <label
+                                        >설명
+                                        <textarea
+                                            name="description"
+                                            rows="2"
+                                        ></textarea>
+                                    </label>
+                                    <label
+                                        >이미지 URL
+                                        <input type="text" name="imageUrl"
+                                    /></label>
+                                    <label
+                                        >혜택 요약
+                                        <textarea
+                                            name="summaryBenefits"
+                                            rows="2"
+                                        ></textarea>
+                                    </label>
+                                    <p class="help-text">
+                                        복잡한 benefits 배열은 뒤에 “혜택 추가”
+                                        API로 관리합니다.
+                                    </p>
+                                    <button type="submit" class="btn-primary">
+                                        생성
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        혜택 추가 / 조회 (POST
+                                        /card-products/{id}/benefits, GET
+                                        /card-products/{id}/benefits)
+                                    </h3>
+                                </div>
+                                <form id="form-benefit-add" class="form-grid">
+                                    <label
+                                        >CardProduct ID
+                                        <input
+                                            type="number"
+                                            name="productId"
+                                            required
+                                    /></label>
+                                    <label
+                                        >혜택 이름
+                                        <input type="text" name="benefitName"
+                                    /></label>
+                                    <label
+                                        >혜택 타입
+                                        <select name="benefitType">
+                                            <option value="DISCOUNT">
+                                                DISCOUNT
+                                            </option>
+                                            <option value="CASHBACK">
+                                                CASHBACK
+                                            </option>
+                                            <option value="POINT">POINT</option>
+                                            <option value="MILEAGE">
+                                                MILEAGE
+                                            </option>
+                                        </select>
+                                    </label>
+                                    <label
+                                        >카테고리 코드
+                                        <input
+                                            type="text"
+                                            name="categoryCode"
+                                            placeholder="CONVENIENCE / CAFE 등"
+                                    /></label>
+                                    <label
+                                        >할인율(0.15 = 15%)
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            name="discountRate"
+                                    /></label>
+                                    <label
+                                        >월 최대 할인
+                                        <input
+                                            type="number"
+                                            name="maxDiscountPerMonth"
+                                    /></label>
+                                    <label
+                                        >발동 실적 조건
+                                        <input
+                                            type="number"
+                                            name="minSpendingForActivation"
+                                    /></label>
+                                    <label
+                                        >설명
+                                        <textarea
+                                            name="description"
+                                            rows="2"
+                                        ></textarea>
+                                    </label>
+                                    <button type="submit" class="btn-primary">
+                                        혜택 추가
+                                    </button>
+                                </form>
+
+                                <form
+                                    id="form-benefit-list"
+                                    class="form-inline"
+                                >
+                                    <label
+                                        >CardProduct ID
+                                        <input
+                                            type="number"
+                                            name="productId"
+                                            required
+                                    /></label>
+                                    <button type="submit" class="btn-outline">
+                                        혜택 목록 조회
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 카드 -->
+                    <section id="section-card" class="section">
+                        <h2>8. 카드(Card) (CardController)</h2>
+                        <div class="card-grid">
+                            <!-- 카드 발급 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        카드 발급 (POST
+                                        /members/{memberId}/cards)
+                                    </h3>
+                                </div>
+                                <form id="form-card-create" class="form-grid">
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <label
+                                        >CardProduct ID (productId)
+                                        <input type="number" name="productId"
+                                    /></label>
+                                    <label
+                                        >결제 계좌 ID (accountId)
+                                        <input type="number" name="accountId"
+                                    /></label>
+                                    <label
+                                        >카드 별칭(선택)
+                                        <input type="text" name="nickname"
+                                    /></label>
+                                    <button type="submit" class="btn-primary">
+                                        발급
+                                    </button>
+                                    <p class="help-text">
+                                        쿼리 스트링으로
+                                        <code
+                                            >?productId=&amp;accountId=&amp;nickname=</code
+                                        >
+                                        를 보냅니다.
+                                    </p>
+                                </form>
+                            </div>
+
+                            <!-- 카드 목록 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        카드 목록 조회 (GET
+                                        /members/{memberId}/cards)
+                                    </h3>
+                                </div>
+                                <form id="form-card-list" class="form-inline">
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <button type="submit" class="btn-outline">
+                                        조회
+                                    </button>
+                                </form>
+                                <div
+                                    id="card-list"
+                                    class="table-wrapper small"
+                                ></div>
+                                <p class="help-text">
+                                    행 클릭 시 <strong>선택 Card ID</strong> 로
+                                    설정됩니다.
+                                </p>
+                            </div>
+
+                            <!-- 카드 상세 / 결제 / 계좌 설정 / 비활성화 -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>카드 상세 & 결제 / 계좌 설정 / 해지</h3>
+                                </div>
+
+                                <form id="form-card-detail" class="form-inline">
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <label
+                                        >Card ID
+                                        <input
+                                            type="number"
+                                            name="cardId"
+                                            placeholder="선택 Card 사용"
+                                    /></label>
+                                    <button type="submit" class="btn-outline">
+                                        카드 상세 조회
+                                    </button>
+                                </form>
+
+                                <form id="form-card-payment" class="form-grid">
+                                    <h4>
+                                        카드 결제 (POST
+                                        /members/{memberId}/cards/{cardId}/payments)
+                                    </h4>
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <label
+                                        >Card ID
+                                        <input
+                                            type="number"
+                                            name="cardId"
+                                            placeholder="선택 Card 사용"
+                                    /></label>
+                                    <label
+                                        >금액
+                                        <input
+                                            type="number"
+                                            name="amount"
+                                            step="1"
+                                    /></label>
+                                    <label
+                                        >가맹점명
+                                        <input type="text" name="merchant"
+                                    /></label>
+                                    <label
+                                        >카테고리
+                                        <input
+                                            type="text"
+                                            name="category"
+                                            placeholder="CONVENIENCE / CAFE 등"
+                                    /></label>
+                                    <label
+                                        >설명(선택)
+                                        <input type="text" name="description"
+                                    /></label>
+                                    <button type="submit" class="btn-primary">
+                                        결제 생성
+                                    </button>
+                                </form>
+
+                                <form
+                                    id="form-card-set-account"
+                                    class="form-grid"
+                                >
+                                    <h4>
+                                        결제 계좌 설정 (PUT
+                                        /members/{memberId}/cards/{cardId}/payment-account)
+                                    </h4>
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <label
+                                        >Card ID
+                                        <input
+                                            type="number"
+                                            name="cardId"
+                                            placeholder="선택 Card 사용"
+                                    /></label>
+                                    <label
+                                        >결제 계좌 ID
+                                        <input type="number" name="accountId"
+                                    /></label>
+                                    <button type="submit" class="btn-outline">
+                                        결제 계좌 변경
+                                    </button>
+                                </form>
+
+                                <form
+                                    id="form-card-deactivate"
+                                    class="form-inline danger-zone"
+                                >
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <label
+                                        >Card ID
+                                        <input
+                                            type="number"
+                                            name="cardId"
+                                            placeholder="선택 Card 사용"
+                                    /></label>
+                                    <button type="submit" class="btn-danger">
+                                        카드 해지
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 거래 내역 -->
+                    <section id="section-transaction" class="section">
+                        <h2>
+                            9. 거래 내역(Transaction) (TransactionController)
+                        </h2>
+
+                        <div class="card-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        최근 거래 10건 (GET
+                                        /members/{memberId}/transactions/recent)
+                                    </h3>
+                                </div>
+                                <form id="form-tx-recent" class="form-inline">
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <button type="submit" class="btn-primary">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        거래 검색 (POST
+                                        /members/{memberId}/transactions/search)
+                                    </h3>
+                                </div>
+                                <form id="form-tx-search" class="form-grid">
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <label
+                                        >거래 타입 (예: PAYMENT, DEPOSIT
+                                        등)<input
+                                            type="text"
+                                            name="transactionType"
+                                    /></label>
+                                    <label
+                                        >카테고리
+                                        <input type="text" name="category"
+                                    /></label>
+                                    <label
+                                        >시작일 (YYYY-MM-DD)
+                                        <input type="text" name="startDate"
+                                    /></label>
+                                    <label
+                                        >종료일 (YYYY-MM-DD)
+                                        <input type="text" name="endDate"
+                                    /></label>
+                                    <label
+                                        >검색어 (가맹점/메모)
+                                        <input type="text" name="keyword"
+                                    /></label>
+                                    <label
+                                        >page
+                                        <input
+                                            type="number"
+                                            name="page"
+                                            placeholder="0"
+                                    /></label>
+                                    <label
+                                        >size
+                                        <input
+                                            type="number"
+                                            name="size"
+                                            placeholder="20"
+                                    /></label>
+                                    <button type="submit" class="btn-primary">
+                                        검색
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        단일 거래 조회 (GET
+                                        /members/{memberId}/transactions/{transactionId})
+                                    </h3>
+                                </div>
+                                <form id="form-tx-detail" class="form-inline">
+                                    <label
+                                        >Member ID
+                                        <input
+                                            type="number"
+                                            name="memberId"
+                                            placeholder="현재 Member 사용"
+                                    /></label>
+                                    <label
+                                        >Transaction ID
+                                        <input
+                                            type="number"
+                                            name="transactionId"
+                                    /></label>
+                                    <button type="submit" class="btn-outline">
+                                        조회
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 섹션: 시뮬레이션 -->
+                    <section id="section-simulate" class="section">
+                        <h2>10. 스케줄 시뮬레이션 (SimulationController)</h2>
+                        <div class="card-grid">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        하루 경과 (POST /api/dev/simulate/day)
+                                    </h3>
+                                </div>
+                                <form id="form-sim-day" class="form-inline">
+                                    <button type="submit" class="btn-primary">
+                                        하루 지나가게
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>
+                                        월말 결제 (POST
+                                        /api/dev/simulate/month-end)
+                                    </h3>
+                                </div>
+                                <form id="form-sim-month" class="form-inline">
+                                    <button type="submit" class="btn-primary">
+                                        월말 결제 실행
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+
+                <!-- 응답 / 로그 영역 -->
+                <aside class="log-panel">
+                    <div class="log-header">
+                        <h3>Response / Log</h3>
+                        <button id="btn-clear-log" class="btn-outline btn-xs">
+                            초기화
+                        </button>
+                    </div>
+                    <pre id="log-output" class="log-output">
+// 여기에 API 응답(JSON)이 표시됩니다.</pre
+                    >
+                </aside>
             </div>
-            <form id="form-signup" class="form-grid">
-              <label>
-                로그인 ID
-                <input type="text" name="loginId" required/>
-              </label>
-              <label>
-                비밀번호
-                <input type="password" name="password" required/>
-              </label>
-              <label>
-                이름
-                <input type="text" name="name" required/>
-              </label>
-              <label>
-                생년월일 (YYYY-MM-DD)
-                <input type="text" name="birthDate" placeholder="1998-01-01" required/>
-              </label>
-              <label>
-                전화번호
-                <input type="text" name="phoneNumber" placeholder="010-1234-5678" required/>
-              </label>
-              <button type="submit" class="btn-primary">회원가입</button>
-              <p class="help-text">
-                성공 시 <code>MemberResponse</code> 가 내려오고, ID를 현재 Member로 설정합니다.
-              </p>
-            </form>
-          </div>
-
-          <!-- 로그인 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>로그인 (POST /members/login)</h3>
-              <span class="card-tag">MemberController</span>
-            </div>
-            <form id="form-login" class="form-grid">
-              <label>
-                로그인 ID
-                <input type="text" name="loginId" required/>
-              </label>
-              <label>
-                비밀번호
-                <input type="password" name="password" required/>
-              </label>
-              <button type="submit" class="btn-primary">로그인</button>
-              <p class="help-text">
-                성공 시 <code>MemberResponse</code> 의 id를 현재 Member로 설정합니다.
-              </p>
-            </form>
-          </div>
         </div>
-      </section>
 
-      <!-- 섹션: 회원 설정 -->
-      <section id="section-member" class="section">
-        <h2>2. 회원 정보 / 설정 (MemberController)</h2>
-        <div class="card-grid">
-          <!-- 회원 정보 조회 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>회원 정보 조회 (GET /members/{memberId})</h3>
-            </div>
-            <form id="form-get-member" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <button type="submit" class="btn-outline">조회</button>
-            </form>
-          </div>
-
-          <!-- 저축 설정 변경 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>저축 설정 변경 (PUT /members/{memberId}/settings/savings)</h3>
-            </div>
-            <form id="form-savings-settings" class="form-grid">
-              <label>
-                Member ID (선택)
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                저축 비율 (예: 0.3)
-                <input type="number" step="0.01" name="savingsRatio"/>
-              </label>
-              <label>
-                자동 저축 여부
-                <select name="autoSavingsEnabled">
-                  <option value="">변경 안함</option>
-                  <option value="true">사용</option>
-                  <option value="false">사용 안함</option>
-                </select>
-              </label>
-              <button type="submit" class="btn-primary">변경</button>
-            </form>
-          </div>
-
-          <!-- 온보딩 완료 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>온보딩 완료 처리 (PUT /members/{memberId}/onboarding)</h3>
-            </div>
-            <form id="form-onboarding" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <button type="submit" class="btn-primary">온보딩 완료</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 홈 / 마이페이지 -->
-      <section id="section-home" class="section">
-        <h2>3. 대시보드 / 마이페이지 (HomeController)</h2>
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3>홈 (GET /members/{memberId}/home)</h3>
-            </div>
-            <form id="form-home" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <button type="submit" class="btn-primary">조회</button>
-            </form>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h3>마이페이지 (GET /members/{memberId}/home/mypage)</h3>
-            </div>
-            <form id="form-mypage" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <button type="submit" class="btn-primary">조회</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 계좌 -->
-      <section id="section-account" class="section">
-        <h2>4. 계좌(Account) (AccountController)</h2>
-
-        <div class="card-grid">
-          <!-- 계좌 등록 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>계좌 등록 (POST /members/{memberId}/accounts)</h3>
-            </div>
-            <form id="form-account-create" class="form-grid">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                계좌번호
-                <input type="text" name="accountNumber" required/>
-              </label>
-              <label>
-                은행명
-                <input type="text" name="bankName" required/>
-              </label>
-              <label class="checkbox-row">
-                <input type="checkbox" name="isPrimary"/>
-                <span>주 계좌로 설정</span>
-              </label>
-              <button type="submit" class="btn-primary">등록</button>
-            </form>
-          </div>
-
-          <!-- 계좌 목록 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>계좌 목록 조회 (GET /members/{memberId}/accounts)</h3>
-            </div>
-            <form id="form-account-list" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <button type="submit" class="btn-outline">조회</button>
-            </form>
-            <div id="account-list" class="table-wrapper small">
-              <!-- JS로 테이블 렌더링 -->
-            </div>
-            <p class="help-text">
-              리스트에서 행을 클릭하면 <strong>선택 Account ID</strong> 로 설정됩니다.
-            </p>
-          </div>
-
-          <!-- 계좌 상세 & 주계좌 / 삭제 / 입출금 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>계좌 상세 / 설정 / 입출금</h3>
-            </div>
-
-            <form id="form-account-detail" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                Account ID
-                <input type="number" name="accountId" placeholder="선택 Account 사용"/>
-              </label>
-              <button type="submit" class="btn-outline">상세 조회</button>
-            </form>
-
-            <form id="form-account-primary" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                Account ID
-                <input type="number" name="accountId" placeholder="선택 Account 사용"/>
-              </label>
-              <button type="submit" class="btn-outline">주 계좌 설정</button>
-            </form>
-
-            <form id="form-account-delete" class="form-inline danger-zone">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                Account ID
-                <input type="number" name="accountId" placeholder="선택 Account 사용"/>
-              </label>
-              <button type="submit" class="btn-danger">계좌 삭제</button>
-            </form>
-
-            <hr class="card-divider"/>
-
-            <form id="form-account-deposit" class="form-grid">
-              <h4>입금 (POST /members/{memberId}/accounts/{accountId}/deposit)</h4>
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                Account ID
-                <input type="number" name="accountId" placeholder="선택 Account 사용"/>
-              </label>
-              <label>
-                금액
-                <input type="number" step="1" name="amount" required/>
-              </label>
-              <label>
-                메모(선택)
-                <input type="text" name="description" placeholder="입금 메모"/>
-              </label>
-              <button type="submit" class="btn-primary">입금</button>
-            </form>
-
-            <form id="form-account-withdraw" class="form-grid">
-              <h4>출금 (POST /members/{memberId}/accounts/{accountId}/withdraw)</h4>
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                Account ID
-                <input type="number" name="accountId" placeholder="선택 Account 사용"/>
-              </label>
-              <label>
-                금액
-                <input type="number" step="1" name="amount" required/>
-              </label>
-              <label>
-                메모(선택)
-                <input type="text" name="description" placeholder="출금 메모"/>
-              </label>
-              <button type="submit" class="btn-primary">출금</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 티끌통장 -->
-      <section id="section-savings" class="section">
-        <h2>5. 티끌통장(Savings) (SavingsController)</h2>
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3>티끌통장 조회 (GET /members/{memberId}/savings)</h3>
-            </div>
-            <form id="form-savings-get" class="form-inline">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <button type="submit" class="btn-primary">조회</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>금융상품 연결 (PUT /members/{memberId}/savings/product)</h3>
-            </div>
-            <form id="form-savings-link" class="form-grid">
-              <label>
-                Member ID
-                <input type="number" name="memberId" placeholder="현재 Member 사용"/>
-              </label>
-              <label>
-                Product ID
-                <input type="number" name="productId" required/>
-              </label>
-              <button type="submit" class="btn-primary">연결</button>
-              <p class="help-text">
-                <code>LinkProductRequest.productId</code> 로 전송됩니다.
-              </p>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 금융상품 -->
-      <section id="section-financial" class="section">
-        <h2>6. 금융상품 (FinancialProductController)</h2>
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3>전체 상품 조회 (GET /api/products)</h3>
-            </div>
-            <form id="form-products-all" class="form-inline">
-              <button type="submit" class="btn-primary">조회</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>타입별 조회 (GET /api/products/type/{productType})</h3>
-            </div>
-            <form id="form-products-type" class="form-inline">
-              <label>
-                productType
-                <select name="productType">
-                  <option value="SAVINGS">SAVINGS</option>
-                  <option value="FIXED">FIXED</option>
-                  <option value="FUND">FUND</option>
-                </select>
-              </label>
-              <button type="submit" class="btn-outline">조회</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>단일 상품 조회 (GET /api/products/{productId})</h3>
-            </div>
-            <form id="form-products-one" class="form-inline">
-              <label>
-                productId
-                <input type="number" name="productId" required/>
-              </label>
-              <button type="submit" class="btn-outline">조회</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>상품 등록 (POST /api/products)</h3>
-              <span class="card-tag">관리자용</span>
-            </div>
-            <form id="form-products-create" class="form-grid">
-              <label>상품명 <input type="text" name="productName"/></label>
-              <label>상품코드 <input type="text" name="productCode"/></label>
-              <label>상품타입
-                <select name="productType">
-                  <option value="SAVINGS">SAVINGS</option>
-                  <option value="FIXED">FIXED</option>
-                  <option value="FUND">FUND</option>
-                </select>
-              </label>
-              <label>제공사 <input type="text" name="provider"/></label>
-              <label>기본 금리 <input type="number" step="0.0001" name="interestRate"/></label>
-              <label>최대 금리 <input type="number" step="0.0001" name="maxInterestRate"/></label>
-              <label>최소 기간(개월) <input type="number" name="minTerm"/></label>
-              <label>최대 기간(개월) <input type="number" name="maxTerm"/></label>
-              <label>최소 금액 <input type="number" name="minAmount"/></label>
-              <label>최대 금액 <input type="number" name="maxAmount"/></label>
-              <label>설명 <textarea name="description" rows="2"></textarea></label>
-              <label>약관 요약 <textarea name="terms" rows="2"></textarea></label>
-              <label>혜택 요약 <textarea name="benefits" rows="2"></textarea></label>
-              <button type="submit" class="btn-primary">등록</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 마스터 카드 -->
-      <section id="section-cardproduct" class="section">
-        <h2>7. 마스터카드 (CardProductController)</h2>
-
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3>전체 마스터카드 조회 (GET /card-products)</h3>
-            </div>
-            <form id="form-cardproducts-all" class="form-inline">
-              <button type="submit" class="btn-primary">조회</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>마스터카드 상세 (GET /card-products/{id})</h3>
-            </div>
-            <form id="form-cardproducts-one" class="form-inline">
-              <label>
-                productId
-                <input type="number" name="id" required/>
-              </label>
-              <button type="submit" class="btn-outline">조회</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>마스터카드 생성 (POST /card-products)</h3>
-            </div>
-            <form id="form-cardproducts-create" class="form-grid">
-              <label>카드 이름 <input type="text" name="name"/></label>
-              <label>카드사 <input type="text" name="company"/></label>
-              <label>카드 타입
-                <select name="cardType">
-                  <option value="CREDIT">CREDIT</option>
-                </select>
-              </label>
-              <label>연회비 <input type="number" name="annualFee"/></label>
-              <label>설명 <textarea name="description" rows="2"></textarea></label>
-              <label>이미지 URL <input type="text" name="imageUrl"/></label>
-              <label>혜택 요약 <textarea name="summaryBenefits" rows="2"></textarea></label>
-              <p class="help-text">복잡한 benefits 배열은 뒤에 “혜택 추가” API로 관리합니다.</p>
-              <button type="submit" class="btn-primary">생성</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>혜택 추가 / 조회 (POST /card-products/{id}/benefits, GET
-                /card-products/{id}/benefits)</h3>
-            </div>
-            <form id="form-benefit-add" class="form-grid">
-              <label>CardProduct ID <input type="number" name="productId" required/></label>
-              <label>혜택 이름 <input type="text" name="benefitName"/></label>
-              <label>혜택 타입
-                <select name="benefitType">
-                  <option value="DISCOUNT">DISCOUNT</option>
-                  <option value="CASHBACK">CASHBACK</option>
-                  <option value="POINT">POINT</option>
-                  <option value="MILEAGE">MILEAGE</option>
-                </select>
-              </label>
-              <label>카테고리 코드 <input type="text" name="categoryCode"
-                                    placeholder="CONVENIENCE / CAFE 등"/></label>
-              <label>할인율(0.15 = 15%) <input type="number" step="0.0001"
-                                            name="discountRate"/></label>
-              <label>월 최대 할인 <input type="number" name="maxDiscountPerMonth"/></label>
-              <label>발동 실적 조건 <input type="number" name="minSpendingForActivation"/></label>
-              <label>설명 <textarea name="description" rows="2"></textarea></label>
-              <button type="submit" class="btn-primary">혜택 추가</button>
-            </form>
-
-            <form id="form-benefit-list" class="form-inline">
-              <label>CardProduct ID <input type="number" name="productId" required/></label>
-              <button type="submit" class="btn-outline">혜택 목록 조회</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 카드 -->
-      <section id="section-card" class="section">
-        <h2>8. 카드(Card) (CardController)</h2>
-        <div class="card-grid">
-          <!-- 카드 발급 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>카드 발급 (POST /members/{memberId}/cards)</h3>
-            </div>
-            <form id="form-card-create" class="form-grid">
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <label>CardProduct ID (productId) <input type="number" name="productId"/></label>
-              <label>결제 계좌 ID (accountId) <input type="number" name="accountId"/></label>
-              <label>카드 별칭(선택) <input type="text" name="nickname"/></label>
-              <button type="submit" class="btn-primary">발급</button>
-              <p class="help-text">
-                쿼리 스트링으로 <code>?productId=&amp;accountId=&amp;nickname=</code> 를 보냅니다.
-              </p>
-            </form>
-          </div>
-
-          <!-- 카드 목록 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>카드 목록 조회 (GET /members/{memberId}/cards)</h3>
-            </div>
-            <form id="form-card-list" class="form-inline">
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <button type="submit" class="btn-outline">조회</button>
-            </form>
-            <div id="card-list" class="table-wrapper small"></div>
-            <p class="help-text">행 클릭 시 <strong>선택 Card ID</strong> 로 설정됩니다.</p>
-          </div>
-
-          <!-- 카드 상세 / 결제 / 계좌 설정 / 비활성화 -->
-          <div class="card">
-            <div class="card-header">
-              <h3>카드 상세 & 결제 / 계좌 설정 / 해지</h3>
-            </div>
-
-            <form id="form-card-detail" class="form-inline">
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <label>Card ID <input type="number" name="cardId" placeholder="선택 Card 사용"/></label>
-              <button type="submit" class="btn-outline">카드 상세 조회</button>
-            </form>
-
-            <form id="form-card-payment" class="form-grid">
-              <h4>카드 결제 (POST /members/{memberId}/cards/{cardId}/payments)</h4>
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <label>Card ID <input type="number" name="cardId" placeholder="선택 Card 사용"/></label>
-              <label>금액 <input type="number" name="amount" step="1"/></label>
-              <label>가맹점명 <input type="text" name="merchant"/></label>
-              <label>카테고리 <input type="text" name="category"
-                                 placeholder="CONVENIENCE / CAFE 등"/></label>
-              <label>설명(선택) <input type="text" name="description"/></label>
-              <button type="submit" class="btn-primary">결제 생성</button>
-            </form>
-
-            <form id="form-card-set-account" class="form-grid">
-              <h4>결제 계좌 설정 (PUT /members/{memberId}/cards/{cardId}/payment-account)</h4>
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <label>Card ID <input type="number" name="cardId" placeholder="선택 Card 사용"/></label>
-              <label>결제 계좌 ID <input type="number" name="accountId"/></label>
-              <button type="submit" class="btn-outline">결제 계좌 변경</button>
-            </form>
-
-            <form id="form-card-deactivate" class="form-inline danger-zone">
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <label>Card ID <input type="number" name="cardId" placeholder="선택 Card 사용"/></label>
-              <button type="submit" class="btn-danger">카드 해지</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 거래 내역 -->
-      <section id="section-transaction" class="section">
-        <h2>9. 거래 내역(Transaction) (TransactionController)</h2>
-
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3>최근 거래 10건 (GET /members/{memberId}/transactions/recent)</h3>
-            </div>
-            <form id="form-tx-recent" class="form-inline">
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <button type="submit" class="btn-primary">조회</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>거래 검색 (POST /members/{memberId}/transactions/search)</h3>
-            </div>
-            <form id="form-tx-search" class="form-grid">
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <label>거래 타입 (예: PAYMENT, DEPOSIT 등)<input type="text"
-                                                         name="transactionType"/></label>
-              <label>카테고리 <input type="text" name="category"/></label>
-              <label>시작일 (YYYY-MM-DD) <input type="text" name="startDate"/></label>
-              <label>종료일 (YYYY-MM-DD) <input type="text" name="endDate"/></label>
-              <label>검색어 (가맹점/메모) <input type="text" name="keyword"/></label>
-              <label>page <input type="number" name="page" placeholder="0"/></label>
-              <label>size <input type="number" name="size" placeholder="20"/></label>
-              <button type="submit" class="btn-primary">검색</button>
-            </form>
-          </div>
-
-          <div class="card">
-            <div class="card-header">
-              <h3>단일 거래 조회 (GET /members/{memberId}/transactions/{transactionId})</h3>
-            </div>
-            <form id="form-tx-detail" class="form-inline">
-              <label>Member ID <input type="number" name="memberId"
-                                      placeholder="현재 Member 사용"/></label>
-              <label>Transaction ID <input type="number" name="transactionId"/></label>
-              <button type="submit" class="btn-outline">조회</button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <!-- 섹션: 시뮬레이션 -->
-      <section id="section-simulate" class="section">
-        <h2>10. 스케줄 시뮬레이션 (SimulationController)</h2>
-        <div class="card-grid">
-          <div class="card">
-            <div class="card-header">
-              <h3>하루 경과 (POST /api/dev/simulate/day)</h3>
-            </div>
-            <form id="form-sim-day" class="form-inline">
-              <button type="submit" class="btn-primary">하루 지나가게</button>
-            </form>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <h3>월말 결제 (POST /api/dev/simulate/month-end)</h3>
-            </div>
-            <form id="form-sim-month" class="form-inline">
-              <button type="submit" class="btn-primary">월말 결제 실행</button>
-            </form>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- 응답 / 로그 영역 -->
-    <aside class="log-panel">
-      <div class="log-header">
-        <h3>Response / Log</h3>
-        <button id="btn-clear-log" class="btn-outline btn-xs">초기화</button>
-      </div>
-      <pre id="log-output" class="log-output">// 여기에 API 응답(JSON)이 표시됩니다.</pre>
-    </aside>
-  </div>
-</div>
-
-<script src="app.js"></script>
-</body>
+        <script src="app.js"></script>
+    </body>
 </html>

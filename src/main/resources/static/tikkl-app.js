@@ -29,6 +29,8 @@ const modalLayer = document.getElementById("modalLayer");
 const ratioSlider = document.getElementById("savingsRatioSlider");
 const recentMoreBtn = document.getElementById("recentMoreBtn");
 const txListMoreBtn = document.getElementById("txListMoreBtn");
+const addAccountForm = document.getElementById("addAccountForm");
+const toggleAddAccountBtn = document.getElementById("toggleAddAccount");
 
 async function api(path, {method = "GET", body, headers} = {}) {
   const options = {
@@ -708,12 +710,72 @@ function renderSavingsModal() {
   }
 }
 
+function ensureAccountsTabActive() {
+  const modal = document.getElementById("savingsModal");
+  if (!modal) return;
+  const accountsTab = modal.querySelector('.tabs button[data-tab="accounts"]');
+  if (accountsTab && !accountsTab.classList.contains("active")) {
+    accountsTab.click();
+  }
+}
+
+function resetAddAccountForm() {
+  if (!addAccountForm || !toggleAddAccountBtn) return;
+  addAccountForm.hidden = true;
+  addAccountForm.reset();
+  toggleAddAccountBtn.textContent = "+ 계좌 추가";
+}
+
+function toggleAddAccountForm(forceShow) {
+  if (!addAccountForm || !toggleAddAccountBtn) return;
+  ensureAccountsTabActive();
+  const shouldShow = forceShow !== undefined ? forceShow : addAccountForm.hidden;
+  addAccountForm.hidden = !shouldShow;
+  toggleAddAccountBtn.textContent = shouldShow ? "계좌 추가 취소" : "+ 계좌 추가";
+}
+
+async function handleAddAccountSubmit(event) {
+  event.preventDefault();
+  if (!state.memberId) {
+    alert("로그인이 필요합니다. 다시 시도해주세요.");
+    return;
+  }
+  const bankInput = document.getElementById("addAccountBank");
+  const numberInput = document.getElementById("addAccountNumber");
+  const primaryInput = document.getElementById("addAccountPrimary");
+  const bankName = bankInput?.value.trim();
+  const accountNumber = numberInput?.value.trim();
+  if (!bankName || !accountNumber) {
+    alert("은행명과 계좌번호를 모두 입력해주세요.");
+    return;
+  }
+  try {
+    await api(`/members/${state.memberId}/accounts`, {
+      method: "POST",
+      body: {
+        bankName,
+        accountNumber,
+        isPrimary: Boolean(primaryInput?.checked),
+      },
+    });
+    setStatus("새 계좌가 추가되었습니다.");
+    event.target.reset();
+    toggleAddAccountForm(false);
+    await fetchAccounts();
+  } catch (err) {
+    console.error(err);
+    setStatus(err.message || "계좌 추가에 실패했습니다.", "error");
+  }
+}
+
 async function fetchAccounts() {
   if (!state.memberId) return;
   try {
     const accounts = await api(`/members/${state.memberId}/accounts`);
     state.accounts = accounts || [];
     state.accountsLoaded = true;
+    const primary = state.accounts.find((acc) => acc.primary || acc.isPrimary);
+    state.selectedAccountId = primary?.id || state.accounts[0]?.id || null;
     populateAccountSelect();
     renderSavingsModal();
   } catch (err) {
@@ -980,6 +1042,7 @@ function openModal(id) {
 function closeModal() {
   modalLayer.hidden = true;
   modalLayer.querySelectorAll(".modal").forEach((modal) => modal.classList.remove("active"));
+  resetAddAccountForm();
 }
 
 function populateCardProductSelect() {
@@ -1120,6 +1183,14 @@ if (txListMoreBtn) {
     state.transactionsExpanded = !state.transactionsExpanded;
     renderTransactionList();
   });
+}
+
+if (toggleAddAccountBtn) {
+  toggleAddAccountBtn.addEventListener("click", () => toggleAddAccountForm());
+}
+
+if (addAccountForm) {
+  addAccountForm.addEventListener("submit", handleAddAccountSubmit);
 }
 
 document.querySelectorAll(".tabs button").forEach((button) => {
