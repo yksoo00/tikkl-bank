@@ -18,10 +18,11 @@ public class GlobalExceptionHandler {
 
     // Validation Exception Handler
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ErrorResponse> handleValidationException(
+        MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .collect(java.util.stream.Collectors.joining(", "));
+            .map(error -> error.getField() + ": " + error.getDefaultMessage())
+            .collect(java.util.stream.Collectors.joining(", "));
 
         if (message.isEmpty()) {
             message = ErrorCode.VALIDATION_ERROR.getMessage();
@@ -34,7 +35,9 @@ public class GlobalExceptionHandler {
     // General Exception Handler
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+        ex.printStackTrace(); // 🔥 이게 없어서 로그가 안 뜬다!
         ErrorResponse errorResponse = ErrorResponse.of(ErrorCode.INTERNAL_SERVER_ERROR);
-        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus()).body(errorResponse);
+        return ResponseEntity.status(ErrorCode.INTERNAL_SERVER_ERROR.getStatus())
+            .body(errorResponse);
     }
 }

@@ -1,47 +1,46 @@
 package com.tikkl.bank.controller;
 
 import com.tikkl.bank.common.ApiResponse;
+import com.tikkl.bank.dto.request.LoginRequest;
 import com.tikkl.bank.dto.request.SavingsSettingRequest;
+import com.tikkl.bank.dto.request.SignupRequest;
 import com.tikkl.bank.dto.response.MemberResponse;
-import com.tikkl.bank.dto.response.MyPageResponse;
-import com.tikkl.bank.service.HomeService;
 import com.tikkl.bank.service.MemberService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/members")
 @RequiredArgsConstructor
+@RequestMapping("/members")
 public class MemberController {
 
     private final MemberService memberService;
-    private final HomeService homeService;
+
+    @PostMapping("/signup")
+    public ApiResponse<MemberResponse> signup(@RequestBody SignupRequest request) {
+        return ApiResponse.success(memberService.signup(request));
+    }
+
+    @PostMapping("/login")
+    public ApiResponse<MemberResponse> login(@RequestBody LoginRequest request) {
+        return ApiResponse.success(memberService.login(request));
+    }
 
     @GetMapping("/{memberId}")
-    public ResponseEntity<ApiResponse<MemberResponse>> getMember(@PathVariable Long memberId) {
-        MemberResponse response = memberService.getMember(memberId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+    public ApiResponse<MemberResponse> getMember(@PathVariable Long memberId) {
+        return ApiResponse.success(memberService.getMember(memberId));
     }
 
-    @GetMapping("/{memberId}/mypage")
-    public ResponseEntity<ApiResponse<MyPageResponse>> getMyPage(@PathVariable Long memberId) {
-        MyPageResponse response = homeService.getMyPageData(memberId);
-        return ResponseEntity.ok(ApiResponse.success(response));
+    @PutMapping("/{memberId}/settings/savings")
+    public ApiResponse<MemberResponse> updateSavings(
+        @PathVariable Long memberId,
+        @RequestBody SavingsSettingRequest request
+    ) {
+        return ApiResponse.success(memberService.updateSavingsSettings(memberId, request));
     }
 
-    @PutMapping("/{memberId}/savings-settings")
-    public ResponseEntity<ApiResponse<MemberResponse>> updateSavingsSettings(
-            @PathVariable Long memberId,
-            @Valid @RequestBody SavingsSettingRequest request) {
-        MemberResponse response = memberService.updateSavingsSettings(memberId, request);
-        return ResponseEntity.ok(ApiResponse.success(response, "저축 설정이 업데이트되었습니다"));
-    }
-
-    @PostMapping("/{memberId}/onboarding")
-    public ResponseEntity<ApiResponse<MemberResponse>> completeOnboarding(@PathVariable Long memberId) {
-        MemberResponse response = memberService.completeOnboarding(memberId);
-        return ResponseEntity.ok(ApiResponse.success(response, "온보딩이 완료되었습니다"));
+    @PutMapping("/{memberId}/onboarding")
+    public ApiResponse<MemberResponse> onboarding(@PathVariable Long memberId) {
+        return ApiResponse.success(memberService.completeOnboarding(memberId));
     }
 }

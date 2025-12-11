@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>TikklBank 테스트 플로우</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      margin-bottom: 8px;
+    }
+    h2 {
+      margin-top: 24px;
+      margin-bottom: 8px;
+    }
+    .section {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.04);
+    }
+    .row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    label {
+      font-size: 13px;
+      color: #555;
+      margin-right: 4px;
+    }
+    input, select {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #ccd4e0;
+      font-size: 13px;
+    }
+    button {
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      cursor: pointer;
+      background: #2f80ed;
+      color: #fff;
+      white-space: nowrap;
+    }
+    button.secondary {
+      background: #4caf50;
+    }
+    button.warn {
+      background: #ff9800;
+    }
+    button.outline {
+      background: #ffffff;
+      color: #2f80ed;
+      border: 1px solid #2f80ed;
+    }
+    small {
+      font-size: 12px;
+      color: #777;
+    }
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: #eef2ff;
+      color: #4f46e5;
+      margin-left: 4px;
+    }
+    pre {
+      background: #0b1020;
+      color: #e4ecff;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      overflow-x: auto;
+      max-height: 280px;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 12px;
+    }
+    ul.guide {
+      margin: 4px 0 0 0;
+      padding-left: 16px;
+      font-size: 12px;
+      color: #666;
+    }
+    ul.guide li {
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+<h1>🧪 TikklBank 전체 플로우 테스트</h1>
+<p style="font-size:13px; color:#555;">
+  1) 회원가입/로그인 → 2) 계좌 준비 → 3) 티클통장/금융상품 설정 → 4) 카드상품 선택 & 카드 등록 →
+  5) 카드 결제 (원천 계좌 → 티클통장) → 6) 하루 경과(이자) / 월말 결제 → 7) 대시보드 확인
+  <span id="currentMemberBadge" class="badge" style="display:none;"></span>
+</p>
+
+<!-- 0. 회원가입 / 로그인 -->
+<div class="section">
+  <h2>0. 회원가입 & 로그인</h2>
+
+  <div class="row">
+    <strong style="font-size:13px;">회원가입</strong>
+    <label for="signupName">이름</label>
+    <input type="text" id="signupName" placeholder="예: 홍길동">
+    <label for="signupEmail">이메일</label>
+    <input type="email" id="signupEmail" placeholder="test@example.com">
+    <label for="signupPassword">비밀번호</label>
+    <input type="password" id="signupPassword" placeholder="1234">
+    <button onclick="signUp()">회원가입</button>
+  </div>
+  <ul class="guide">
+    <li>엔드포인트 예시: <code>POST /api/members/signup</code> (name, email, password)</li>
+    <li>응답에서 memberId를 추출해서 아래 공통 입력에 자동 세팅</li>
+  </ul>
+
+  <div class="row">
+    <strong style="font-size:13px;">로그인</strong>
+    <label for="loginEmail">이메일</label>
+    <input type="email" id="loginEmail" placeholder="test@example.com">
+    <label for="loginPassword">비밀번호</label>
+    <input type="password" id="loginPassword" placeholder="1234">
+    <button class="secondary" onclick="login()">로그인</button>
+    <small id="loginStatus"></small>
+  </div>
+  <ul class="guide">
+    <li>엔드포인트 예시: <code>POST /api/members/login</code> (email, password)</li>
+    <li>응답에서 memberId를 추출해서 아래 공통 입력에 자동 세팅</li>
+  </ul>
+</div>
+
+<!-- 1. 공통 입력 -->
+<div class="section">
+  <h2>1. 공통 입력 (회원 / 계좌 / 카드)</h2>
+  <div class="row">
+    <label for="memberId">회원 ID</label>
+    <input type="number" id="memberId" placeholder="예: 1">
+    <label for="accountId">원천 계좌 ID</label>
+    <input type="number" id="accountId" placeholder="카드에 연결할 일반 계좌 ID">
+    <label for="cardId">카드 ID</label>
+    <input type="number" id="cardId" placeholder="결제에 사용할 카드 ID">
+  </div>
+  <ul class="guide">
+    <li>회원가입/로그인이 성공하면 여기 <strong>memberId</strong>에 자동 채워짐.</li>
+    <li>계좌(ID)는 미리 만들어둔 계좌 ID를 넣고, 입금/출금 버튼으로 잔액 세팅.</li>
+  </ul>
+</div>
+
+<!-- 2. 계좌 입출금 테스트 -->
+<div class="section">
+  <h2>2. 계좌 입출금 테스트</h2>
+  <div class="row">
+    <label for="amount">금액</label>
+    <input type="number" id="amount" placeholder="예: 100000">
+    <button onclick="deposit()">입금</button>
+    <button onclick="withdraw()">출금</button>
+  </div>
+  <ul class="guide">
+    <li>입금: <code>POST /api/accounts/{accountId}/deposit</code> body: <code>{ amount }</code></li>
+    <li>출금: <code>POST /api/accounts/{accountId}/withdraw</code> body: <code>{ amount }</code></li>
+    <li>테스트: 먼저 입금으로 원천 계좌에 충분한 돈을 채워두고, 이후 카드 결제 플로우 진행.</li>
+  </ul>
+</div>
+
+<!-- 3. 카드 상품 조회 & 카드 등록 -->
+<div class="section">
+  <h2>3. 카드 상품 조회 & 카드 등록</h2>
+  <div class="row">
+    <button onclick="loadCardProducts()">카드 상품 목록 조회</button>
+    <label for="cardProductId">선택 카드상품 ID</label>
+    <input type="number" id="cardProductId" placeholder="위 목록에서 선택">
+    <label for="cardNickname">카드 닉네임</label>
+    <input type="text" id="cardNickname" placeholder="예: 편의점 30% 카드">
+    <button class="secondary" onclick="registerCard()">카드 등록</button>
+  </div>
+  <ul class="guide">
+    <li>상품 조회: <code>GET /api/card-products</code> → 응답에서 <code>id</code> 보고 cardProductId에 입력.</li>
+    <li>카드 발급: <code>POST /api/members/{memberId}/cards</code> body:
+      <code>{ cardProductId, sourceAccountId, nickname }</code></li>
+    <li>성공 시 응답 안의 cardId(or id)를 자동으로 카드 ID 입력칸에 채움.</li>
+  </ul>
+</div>
+
+<!-- 4. 카드 결제 (원천 계좌 → 티클통장) -->
+<div class="section">
+  <h2>4. 카드 결제 (원천 계좌 → 티클통장)</h2>
+  <div class="row">
+    <label for="payAmount">결제 금액</label>
+    <input type="number" id="payAmount" placeholder="예: 30000">
+    <label for="category">카테고리</label>
+    <input type="text" id="category" placeholder="편의점, 카페, 통신비 등">
+    <button onclick="payWithCard()">카드 결제</button>
+    <button class="outline" onclick="quickConvenience()">편의점 3만원 테스트</button>
+  </div>
+  <ul class="guide">
+    <li>엔드포인트: <code>POST /api/cards/{cardId}/payments</code></li>
+    <li>body 예:
+      <code>{ "amount": 30000, "category": "편의점", "description": "테스트 결제" }</code>
+    </li>
+    <li>편의점 3만원 테스트 버튼을 누르면 amount=30000, category="편의점" 으로 자동 호출.</li>
+  </ul>
+</div>
+
+<!-- 5. 스케줄러 시뮬레이션 -->
+<div class="section">
+  <h2>5. 스케줄러 시뮬레이션 (하루 경과 / 월말 결제)</h2>
+  <div class="row">
+    <button class="secondary" onclick="simulateDay()">하루 경과 (이자 적립 실행)</button>
+    <button class="warn" onclick="simulateMonthEnd()">월말 결제 (지난달 청구 + 자동결제)</button>
+  </div>
+  <ul class="guide">
+    <li>하루 경과: <code>POST /api/dev/simulate/day</code> → 매일 1회 돌던 이자 적립 스케줄러를 강제로 실행.</li>
+    <li>월말 결제: <code>POST /api/dev/simulate/month-end</code> → 지난달 카드 청구를 티클뱅크에서 자동 결제.</li>
+  </ul>
+</div>
+
+<!-- 6. 티클통장 & 대시보드 조회 -->
+<div class="section">
+  <h2>6. 티클통장 & 대시보드 조회</h2>
+  <div class="row">
+    <button onclick="loadSavings()">티클통장 조회</button>
+    <button onclick="loadDashboard()">대시보드 조회</button>
+  </div>
+  <ul class="guide">
+    <li>티클통장: <code>GET /api/members/{memberId}/savings</code></li>
+    <li>대시보드: <code>GET /api/members/{memberId}/dashboard</code></li>
+    <li>대시보드 응답에는 잔액, 누적 이자, 이번달 이자, 다음달 청구 예정 금액, 혜택 구간률 등이 들어감.</li>
+  </ul>
+</div>
+
+<!-- 7. 전체 플로우 시나리오 테스트 -->
+<div class="section">
+  <h2>7. 전체 플로우 시나리오 (원클릭 테스트)</h2>
+  <div class="two-col">
+    <div>
+      <div class="row">
+        <button class="secondary" onclick="runFullFlow()">①-⑦ 한 번에 실행 (기본 시나리오)</button>
+      </div>
+      <ul class="guide">
+        <li>전제:
+          <ul class="guide">
+            <li>memberId, accountId, cardProductId는 이미 입력 또는 생성.</li>
+            <li>계좌에 어느 정도 잔액이 있어야 함.</li>
+          </ul>
+        </li>
+        <li>순서:
+          <ul class="guide">
+            <li>① 원천 계좌 입금 (예: 100,000원)</li>
+            <li>② 카드상품으로 카드 발급</li>
+            <li>③ 편의점 3만원 결제 (티클통장으로 이동)</li>
+            <li>④ 하루 경과 시뮬레이션 (이자 적립)</li>
+            <li>⑤ 월말 결제 시뮬레이션</li>
+            <li>⑥ 대시보드 조회</li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <small>※ 실제로는 각 단계별로 로그 섹션에 요청/응답이 순서대로 쌓이니,
+        어떤 입력으로 어떤 결과가 나왔는지 한 번에 확인할 수 있음.</small>
+    </div>
+  </div>
+</div>
+
+<!-- 응답 로그 -->
+<div class="section">
+  <h2>응답 로그 (입력 & 결과)</h2>
+  <pre id="log"></pre>
+</div>
+
+<script>
+  const state = {
+    memberId: null,
+    lastAction: null,
+  };
+
+  function setMemberId(id) {
+    if (!id) return;
+    state.memberId = id;
+    document.getElementById('memberId').value = id;
+    const badge = document.getElementById('currentMemberBadge');
+    badge.textContent = `현재 로그인 회원: #${id}`;
+    badge.style.display = 'inline-block';
+  }
+
+  function log(obj) {
+    const pre = document.getElementById('log');
+    pre.textContent = JSON.stringify(obj, null, 2);
+  }
+
+  function extractId(result) {
+    if (!result) return null;
+    const d = result.data ?? result;
+    if (!d) return null;
+    // 응답 구조에 따라 id / memberId / memberNo 중 하나를 사용
+    return d.id ?? d.memberId ?? d.memberNo ?? null;
+  }
+
+  async function api(method, url, body, label) {
+    const options = { method, headers: { 'Content-Type': 'application/json' } };
+    if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+      options.body = JSON.stringify(body);
+    }
+
+    let res, data;
+    try {
+      res = await fetch(url, options);
+      const text = await res.text();
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch (e) {
+        data = { raw: text };
+      }
+    } catch (e) {
+      log({ action: label, url, error: e.message });
+      throw e;
+    }
+
+    log({
+      action: label,
+      method,
+      url,
+      requestBody: body ?? null,
+      status: res.status,
+      response: data,
+    });
+
+    return data;
+  }
+
+  // 0. 회원가입 / 로그인
+  async function signUp() {
+    const name = document.getElementById('signupName').value;
+    const email = document.getElementById('signupEmail').value;
+    const password = document.getElementById('signupPassword').value;
+
+    // 🔧 backend에 맞춰 URL/필드명은 필요하면 수정
+    const result = await api('POST', '/api/members/signup', {
+      name, email, password
+    }, '회원가입');
+
+    const id = extractId(result);
+    if (id) {
+      setMemberId(id);
+      document.getElementById('loginStatus').textContent = `회원가입 성공 (id=${id})`;
+    }
+  }
+
+  async function login() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const result = await api('POST', '/api/auth/login', {
+      email, password
+    }, '로그인');
+
+    const id = extractId(result);
+    if (id) {
+      setMemberId(id);
+      document.getElementById('loginStatus').textContent = `로그인 성공 (id=${id})`;
+    } else {
+      document.getElementById('loginStatus').textContent = `로그인 응답에서 memberId를 찾을 수 없음`;
+    }
+  }
+
+  // 2. 계좌 입출금
+  async function deposit() {
+    const accountId = document.getElementById('accountId').value;
+    const amount = Number(document.getElementById('amount').value);
+    await api('POST', `/api/accounts/${accountId}/deposit`, { amount }, '계좌 입금');
+  }
+
+  async function withdraw() {
+    const accountId = document.getElementById('accountId').value;
+    const amount = Number(document.getElementById('amount').value);
+    await api('POST', `/api/accounts/${accountId}/withdraw`, { amount }, '계좌 출금');
+  }
+
+  // 3. 카드 상품 조회 & 카드 등록
+  async function loadCardProducts() {
+    await api('GET', '/api/card-products', null, '카드 상품 목록 조회');
+  }
+
+  async function registerCard() {
+    const memberId = document.getElementById('memberId').value;
+    const cardProductId = document.getElementById('cardProductId').value;
+    const sourceAccountId = document.getElementById('accountId').value;
+    const nickname = document.getElementById('cardNickname').value || '내 카드';
+
+    const result = await api('POST', `/api/members/${memberId}/cards`, {
+      cardProductId,
+      sourceAccountId,
+      nickname
+    }, '카드 발급');
+
+    // ApiResponse 구조에 맞게 카드 ID 뽑아서 input에 채워주기
+    let cardId = null;
+    if (result) {
+      const d = result.data ?? result;
+      if (d) {
+        cardId = d.cardId ?? d.id ?? d.cardNo ?? null;
+      }
+    }
+    if (cardId) {
+      document.getElementById('cardId').value = cardId;
+    }
+  }
+
+  // 4. 카드 결제
+  async function payWithCard() {
+    const cardId = document.getElementById('cardId').value;
+    const amount = Number(document.getElementById('payAmount').value);
+    const category = document.getElementById('category').value || '기타';
+
+    await api('POST', `/api/cards/${cardId}/payments`, {
+      amount,
+      category,
+      description: '테스트 결제'
+    }, '카드 결제');
+  }
+
+  // 편의점 3만원 샘플
+  async function quickConvenience() {
+    document.getElementById('payAmount').value = 30000;
+    document.getElementById('category').value = '편의점';
+    await payWithCard();
+  }
+
+  // 5. 스케줄러 시뮬레이션
+  async function simulateDay() {
+    await api('POST', '/api/dev/simulate/day', null, '하루 경과 (이자 적립 시뮬레이터)');
+  }
+
+  async function simulateMonthEnd() {
+    await api('POST', '/api/dev/simulate/month-end', null, '월말 결제 시뮬레이터');
+  }
+
+  // 6. 티클통장 & 대시보드
+  async function loadSavings() {
+    const memberId = document.getElementById('memberId').value;
+    await api('GET', `/api/members/${memberId}/savings`, null, '티클통장 조회');
+  }
+
+  async function loadDashboard() {
+    const memberId = document.getElementById('memberId').value;
+    await api('GET', `/api/members/${memberId}/dashboard`, null, '대시보드 조회');
+  }
+
+  // 7. 전체 플로우 자동 실행
+  async function runFullFlow() {
+    const memberId = document.getElementById('memberId').value;
+    const accountId = document.getElementById('accountId').value;
+    const cardProductId = document.getElementById('cardProductId').value;
+
+    if (!memberId || !accountId || !cardProductId) {
+      alert('memberId, accountId, cardProductId 를 먼저 입력하거나 생성해 주세요.');
+      return;
+    }
+
+    try {
+      // 1) 계좌에 100,000원 입금
+      await api('POST', `/api/accounts/${accountId}/deposit`,
+          { amount: 100000 }, '플로우① 계좌 입금 100,000');
+
+      // 2) 카드 발급
+      const cardRes = await api('POST', `/api/members/${memberId}/cards`, {
+        cardProductId,
+        sourceAccountId: accountId,
+        nickname: '플로우 테스트 카드'
+      }, '플로우② 카드 발급');
+
+      let cardId = null;
+      if (cardRes) {
+        const d = cardRes.data ?? cardRes;
+        if (d) {
+          cardId = d.cardId ?? d.id ?? d.cardNo ?? null;
+        }
+      }
+      if (cardId) {
+        document.getElementById('cardId').value = cardId;
+      }
+
+      // 3) 편의점 3만원 결제
+      await api('POST', `/api/cards/${cardId}/payments`, {
+        amount: 30000,
+        category: '편의점',
+        description: '플로우 편의점 3만원 결제'
+      }, '플로우③ 편의점 3만원 결제');
+
+      // 4) 하루 경과 (이자 적립)
+      await api('POST', '/api/dev/simulate/day', null, '플로우④ 하루 경과 (이자 적립)');
+
+      // 5) 월말 결제
+      await api('POST', '/api/dev/simulate/month-end', null, '플로우⑤ 월말 결제');
+
+      // 6) 대시보드 조회
+      await api('GET', `/api/members/${memberId}/dashboard`, null, '플로우⑥ 대시보드 조회');
+    } catch (e) {
+      console.error(e);
+      alert('플로우 실행 중 오류가 발생했습니다. 로그 영역을 확인해 주세요.');
+    }
+  }
+</script>
+</body>
+</html>

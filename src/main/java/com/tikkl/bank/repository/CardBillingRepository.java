@@ -17,4 +17,12 @@ public interface CardBillingRepository extends JpaRepository<CardBilling, Long> 
     
     @Query("SELECT cb FROM CardBilling cb WHERE cb.card = :card AND cb.status = 'PENDING'")
     List<CardBilling> findPendingBillingsByCard(@Param("card") Card card);
+
+
+    // ✅ 전월 전체 PENDING 청구 조회용
+    List<CardBilling> findByBillingYearAndBillingMonthAndStatus(
+        Integer billingYear,
+        Integer billingMonth,
+        CardBilling.BillingStatus status
+    );
 }

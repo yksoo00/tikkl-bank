@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <title>티끌 뱅크 라이브 앱</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="assets/tikkl-logo.svg" type="image/svg+xml" />
+        <link rel="stylesheet" href="tikkl-app.css" />
+        <script defer src="tikkl-app.js"></script>
+    </head>
+    <body>
+        <div class="preview-wrapper">
+            <div class="app-screen">
+                <header class="app-header">
+                    <div class="hero-heading">
+                        <div class="hero-brand">
+                            <span class="hero-logo">
+                                <img
+                                    src="assets/tikkl-logo.svg"
+                                    alt="티끌 로고"
+                                />
+                            </span>
+                            <div>
+                                <p class="subtitle">
+                                    tT: 꼴모아 Tㅣ 산 되는 통장
+                                </p>
+                                <h1 id="homeTitle">
+                                    단 하루도, 내 돈을 허투루 두지 마세요.
+                                </h1>
+                            </div>
+                        </div>
+                        <button
+                            class="icon-btn benefit-btn"
+                            type="button"
+                            data-modal="benefitModal"
+                            aria-label="혜택 보기"
+                        >
+                            <span class="icon icon-benefit">🎁</span>
+                        </button>
+                    </div>
+                    <div class="hero-card">
+                        <div class="hero-top">
+                            <div>
+                                <p class="label with-action">
+                                    저금 잔고
+                                    <button
+                                        type="button"
+                                        class="pill-btn"
+                                        data-modal="savingsModal"
+                                    >
+                                        저금 상세
+                                    </button>
+                                </p>
+                                <p class="hero-balance" id="savingsBalance">
+                                    -
+                                </p>
+                                <p class="hero-change" id="savingsChange">
+                                    +0원 · 연 0%
+                                </p>
+                            </div>
+                            <button
+                                class="round-btn"
+                                type="button"
+                                data-modal="savingsModal"
+                            >
+                                <span class="icon icon-piggy"></span>
+                            </button>
+                        </div>
+                        <p class="hero-meta" id="savingsMeta">
+                            결제될 때마다 자동으로 적립돼요.
+                        </p>
+                    </div>
+                </header>
+
+                <main>
+                    <!-- 홈 -->
+                    <section id="screen-home" class="screen active">
+                        <div class="summary-grid">
+                            <article
+                                class="summary-card clickable"
+                                id="nextBillingCard"
+                                data-modal="billingModal"
+                            >
+                                <div class="label">다음 달 청구</div>
+                                <p class="summary-value" id="nextBillingAmount">
+                                    -
+                                </p>
+                                <p class="summary-note" id="nextBillingDesc">
+                                    결제일 -
+                                </p>
+                            </article>
+                            <article class="summary-card">
+                                <div class="label">누적 이자 수익</div>
+                                <p class="summary-value" id="interestTotal">
+                                    -
+                                </p>
+                                <p class="summary-note" id="interestDesc">
+                                    이번 달 이자 -
+                                </p>
+                            </article>
+                        </div>
+
+                        <section class="panel glass">
+                            <div class="panel-head">
+                                <h2>AI 추천 금융상품</h2>
+                                <button
+                                    class="ghost-btn"
+                                    data-screen-target="invest"
+                                >
+                                    전체보기
+                                </button>
+                            </div>
+                            <div id="productList" class="product-list"></div>
+                        </section>
+
+                        <section class="panel glass">
+                            <h2>AI 코치 알림</h2>
+                            <div class="coach-box" id="coachMessage">
+                                이번 주, 신한 Deep Dream 카드 결제 시 혜택 15%
+                                추가 반영 구간입니다.
+                            </div>
+                        </section>
+
+                        <section class="panel glass">
+                            <div class="panel-head">
+                                <h2>이번 달 받은 혜택</h2>
+                                <button
+                                    class="ghost-btn"
+                                    type="button"
+                                    data-modal="benefitModal"
+                                >
+                                    전체보기
+                                </button>
+                            </div>
+                            <div id="benefitList" class="benefit-list"></div>
+                        </section>
+
+                        <section class="panel glass">
+                            <div class="panel-head">
+                                <h2>최근 결제 내역</h2>
+                                <button class="ghost-btn" id="recentMoreBtn">
+                                    더보기
+                                </button>
+                            </div>
+                            <div
+                                id="recentTransactions"
+                                class="transaction-list compact"
+                            ></div>
+                        </section>
+                    </section>
+
+                    <!-- 투자 -->
+                    <section id="screen-invest" class="screen">
+                        <header class="section-header">
+                            <h2>투자 관리</h2>
+                        </header>
+                        <div id="investHero" class="investment-hero"></div>
+                        <div class="panel glass">
+                            <div class="panel-head">
+                                <h2>AI 추천 금융상품</h2>
+                            </div>
+                            <div
+                                id="investProductList"
+                                class="invest-list"
+                            ></div>
+                        </div>
+                        <p class="invest-note">
+                            · 적금 잔고는 자동으로 선택한 금융상품에
+                            투자됩니다.<br />
+                            · 언제든지 다른 상품으로 변경할 수 있습니다.<br />
+                            · 실제 금융상품 가입은 각 금융기관을 통해
+                            진행해주세요.
+                        </p>
+                    </section>
+
+                    <!-- 결제 내역 -->
+                    <section id="screen-transactions" class="screen">
+                        <header class="section-header">
+                            <h2>결제내역</h2>
+                            <div class="segmented">
+                                <button class="active" data-view="list">
+                                    목록
+                                </button>
+                                <button data-view="calendar">달력</button>
+                            </div>
+                        </header>
+
+                        <div class="transactions-view" data-view="list">
+                            <div class="filter-row">
+                                <select id="txCategoryFilter">
+                                    <option value="">전체 카테고리</option>
+                                </select>
+                                <select id="txTypeFilter">
+                                    <option value="">전체 유형</option>
+                                    <option value="PAYMENT">결제</option>
+                                    <option value="SAVINGS">저금</option>
+                                    <option value="INTEREST">이자</option>
+                                    <option value="DEPOSIT">입금</option>
+                                    <option value="WITHDRAWAL">출금</option>
+                                </select>
+                                <button id="txRefresh" class="ghost-btn">
+                                    새로고침
+                                </button>
+                            </div>
+                            <div
+                                id="transactionList"
+                                class="transaction-list"
+                            ></div>
+                            <button
+                                class="ghost-btn list-more"
+                                id="txListMoreBtn"
+                            >
+                                더보기
+                            </button>
+                        </div>
+
+                        <div
+                            class="transactions-view hidden"
+                            data-view="calendar"
+                        >
+                            <div class="calendar-shell">
+                                <div class="calendar-head">
+                                    <button class="ghost-btn" id="calendarPrev">
+                                        &lt;
+                                    </button>
+                                    <div id="calendarMonth"></div>
+                                    <button class="ghost-btn" id="calendarNext">
+                                        &gt;
+                                    </button>
+                                </div>
+                                <div
+                                    class="calendar-grid"
+                                    id="calendarGrid"
+                                ></div>
+                            </div>
+                            <div class="calendar-detail">
+                                <h3 id="calendarSelectedDate">-</h3>
+                                <div
+                                    id="calendarTransactions"
+                                    class="transaction-list compact"
+                                ></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 내 카드 -->
+                    <section id="screen-cards" class="screen">
+                        <header class="section-header">
+                            <h2>내 카드</h2>
+                            <button
+                                class="primary-btn"
+                                id="openAddCardModal"
+                                type="button"
+                                data-modal="addCardModal"
+                            >
+                                + 추가
+                            </button>
+                        </header>
+
+                        <div id="cardsList" class="cards-column"></div>
+                    </section>
+
+                    <!-- 마이 페이지 -->
+                    <section id="screen-mypage" class="screen">
+                        <header class="section-header">
+                            <h2>마이페이지</h2>
+                        </header>
+                        <div class="profile-card" id="profileCard">
+                            <div class="avatar" id="profileAvatar">-</div>
+                            <div>
+                                <p class="profile-name" id="profileName">-</p>
+                                <p class="profile-email" id="profileEmail">-</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-row">
+                            <div class="stat-pill">
+                                <p class="label">등록 카드</p>
+                                <p class="pill-value" id="myCardCount">0</p>
+                            </div>
+                            <div class="stat-pill">
+                                <p class="label">혜택 수익</p>
+                                <p class="pill-value" id="myBenefitEarned">
+                                    0원
+                                </p>
+                            </div>
+                            <div class="stat-pill">
+                                <p class="label">이용 기간</p>
+                                <p class="pill-value" id="myUsageDays">0일</p>
+                            </div>
+                        </div>
+
+                        <section class="panel">
+                            <div class="panel-head">
+                                <h2>저금 비율</h2>
+                                <span id="savingsRatioLabel">100%</span>
+                            </div>
+                            <input
+                                type="range"
+                                id="savingsRatioSlider"
+                                min="0"
+                                max="150"
+                                value="100"
+                            />
+                            <p class="range-desc">
+                                결제 금액의
+                                <strong id="ratioValue">100%</strong>를 자동
+                                저금합니다.
+                            </p>
+                        </section>
+
+                        <div class="settings-list">
+                            <button>알림 설정</button>
+                            <button>보안 설정</button>
+                            <button>고객 센터</button>
+                            <button class="logout">로그아웃</button>
+                        </div>
+                        <p class="app-version">
+                            티끌뱅크 v1.0.0 · 단 하루도, 내 돈을 허투루 두지
+                            마세요.
+                        </p>
+                    </section>
+                </main>
+
+                <nav class="bottom-nav">
+                    <button data-screen="home" class="active">
+                        <span class="icon icon-home"></span>
+                        홈
+                    </button>
+                    <button data-screen="transactions">
+                        <span class="icon icon-list"></span>
+                        결제내역
+                    </button>
+                    <button data-screen="cards">
+                        <span class="icon icon-card"></span>
+                        내카드
+                    </button>
+                    <button data-screen="mypage">
+                        <span class="icon icon-user"></span>
+                        마이
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- 모달 -->
+        <div class="modal-layer" id="modalLayer" hidden>
+            <div class="modal" id="savingsModal">
+                <header>
+                    <h3>저금 상세</h3>
+                    <button class="icon-btn" data-close>&times;</button>
+                </header>
+                <div class="tabs tabs-pill">
+                    <button class="active" data-tab="history">저금 이력</button>
+                    <button data-tab="accounts">대표 계좌</button>
+                </div>
+                <div class="savings-summary-card">
+                    <div>
+                        <p class="label">tT 가상계좌 잔액</p>
+                        <p class="summary-balance" id="savingsModalBalance">
+                            0원
+                        </p>
+                        <p class="summary-desc" id="savingsModalDesc">
+                            카드 결제 시 자동 저금
+                        </p>
+                    </div>
+                    <span class="badge" id="savingsModalProduct"
+                        >티끌 통장</span
+                    >
+                </div>
+                <div class="tab-panel active" data-tab-panel="history">
+                    <div id="savingsHistory"></div>
+                </div>
+                <div class="tab-panel" data-tab-panel="accounts">
+                    <div id="savingsAccounts"></div>
+                    <button class="primary-btn full" id="changePrimaryAccount">
+                        대표 계좌 변경하기
+                    </button>
+                </div>
+            </div>
+
+            <div class="modal" id="billingModal">
+                <header>
+                    <h3>카드별 청구 예정 금액</h3>
+                    <button class="icon-btn" data-close>&times;</button>
+                </header>
+                <p class="modal-subtext">
+                    다가오는 결제일과 금액을 한 번에 확인하세요.
+                </p>
+                <div id="billingList" class="billing-list"></div>
+                <div class="modal-total">
+                    <span>총 청구 예정 금액</span>
+                    <strong id="billingTotal">0원</strong>
+                </div>
+            </div>
+
+            <div class="modal" id="benefitModal">
+                <header>
+                    <h3>이번 달 총 혜택</h3>
+                    <button class="icon-btn" data-close>&times;</button>
+                </header>
+                <div id="benefitModalList" class="benefit-list tall"></div>
+            </div>
+
+            <div class="modal" id="addCardModal">
+                <header>
+                    <h3>새 카드 추가</h3>
+                    <button class="icon-btn" data-close>&times;</button>
+                </header>
+                <form id="addCardForm" class="form-grid">
+                    <label>
+                        카드 상품
+                        <select
+                            name="productId"
+                            id="cardProductSelect"
+                        ></select>
+                    </label>
+                    <label>
+                        결제 계좌
+                        <select
+                            name="accountId"
+                            id="cardAccountSelect"
+                        ></select>
+                    </label>
+                    <label>
+                        카드닉네임
+                        <input
+                            type="text"
+                            name="nickname"
+                            placeholder="예: 편의점 30% 카드"
+                        />
+                    </label>
+                    <label>
+                        결제 예정 금액
+                        <input
+                            type="number"
+                            name="expectedAmount"
+                            placeholder="예: 350000"
+                        />
+                    </label>
+                    <label>
+                        결제일
+                        <input type="date" name="dueDate" />
+                    </label>
+                    <button type="submit" class="primary-btn full">
+                        추가하기
+                    </button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

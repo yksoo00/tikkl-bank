@@ -1,19 +1,19 @@
 package com.tikkl.bank.dto.response;
 
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Getter;
-import java.math.BigDecimal;
 
 @Getter
 @Builder
 public class CardPaymentResponse {
 
     private Long transactionId;
-    private BigDecimal paymentAmount;
-    private BigDecimal savingsAmount;
-    private BigDecimal benefitAmount;
+    private BigDecimal paymentAmount;   // 결제 금액
+    private BigDecimal benefitAmount;   // 할인 금액
+    private BigDecimal savingsAmount;   // 자동저축 금액 (지금은 0)
     private String merchant;
     private String category;
-    private BigDecimal cardMonthlyTotal; // 카드 월 사용 총액
-    private BigDecimal nextBillingAmount; // 다음 청구 예정액
+    private BigDecimal cardMonthlyTotal;
+    private BigDecimal nextBillingAmount;
 }

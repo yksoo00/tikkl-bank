@@ -1,13 +1,22 @@
 package com.tikkl.bank.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.YearMonth;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "card_billing")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,56 +29,37 @@ public class CardBilling {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "card_id", nullable = false)
     private Card card;
 
     @Column(nullable = false)
-    private Integer billingYear; // 청구 년도
+    private Integer billingYear;
 
     @Column(nullable = false)
-    private Integer billingMonth; // 청구 월
+    private Integer billingMonth;
 
-    @Column(nullable = false, precision = 19, scale = 2)
     @Builder.Default
-    private BigDecimal totalAmount = BigDecimal.ZERO; // 총 청구 금액
-
     @Column(nullable = false, precision = 19, scale = 2)
-    @Builder.Default
-    private BigDecimal benefitAmount = BigDecimal.ZERO; // 총 혜택 금액
+    private BigDecimal totalAmount = BigDecimal.ZERO;   // 할인 후 청구액
 
+    @Builder.Default
     @Column(nullable = false, precision = 19, scale = 2)
-    @Builder.Default
-    private BigDecimal savedAmount = BigDecimal.ZERO; // 총 저축 금액
+    private BigDecimal benefitAmount = BigDecimal.ZERO; // 할인 혜택 총합
 
+    @Builder.Default
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal savedAmount = BigDecimal.ZERO;
+
+    @Builder.Default
     @Column(nullable = false)
-    @Builder.Default
-    private Integer transactionCount = 0; // 거래 건수
+    private Integer transactionCount = 0;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private BillingStatus status = BillingStatus.PENDING;
-
-    @Column(nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(nullable = false)
-    @Builder.Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @Column(nullable = false, length = 20)
+    private BillingStatus status;
 
     public enum BillingStatus {
-        PENDING,    // 청구 예정
-        BILLED,     // 청구됨
-        PAID        // 결제 완료
-    }
-
-    public YearMonth getBillingYearMonth() {
-        return YearMonth.of(billingYear, billingMonth);
+        PENDING,
+        PAID,
+        FAILED
     }
 }

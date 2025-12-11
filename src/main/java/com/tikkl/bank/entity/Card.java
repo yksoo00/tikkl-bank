@@ -1,13 +1,20 @@
 package com.tikkl.bank.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "cards")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,69 +27,40 @@ public class Card {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @Column(nullable = false, length = 20)
-    private String cardNumber; // 마스킹된 카드 번호
+    // 마스터카드
+    @ManyToOne(fetch = FetchType.LAZY)
+    private CardProduct cardProduct;
 
-    @Column(nullable = false, length = 50)
-    private String cardName;
+    // 카드 번호 관련
+    @Column(length = 30)
+    private String maskedCardNumber;
 
-    @Column(nullable = false, length = 50)
-    private String cardCompany;
+    @Column(length = 10)
+    private String lastFourDigits;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private CardType cardType = CardType.CREDIT;
+    @Column(length = 50)
+    private String nickname;
 
-    @Column(nullable = false)
-    private LocalDate expiryDate;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean isActive = true;
-
-    @Column(precision = 5, scale = 2)
-    @Builder.Default
-    private BigDecimal bonusSavingsRatio = BigDecimal.ZERO; // 보너스 티끌 비율
-
-    @Column(length = 500)
-    private String benefits; // 카드 혜택 정보
+    // 결제일 (예: 15일, 25일)
+    private Integer billingDay;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "linked_savings_account_id")
-    private SavingsAccount linkedSavingsAccount; // 카드 사용시 저축될 계좌
+    private Account paymentAccount;
 
-    @Column(precision = 19, scale = 2)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private SavingsAccount linkedSavingsAccount;
+
     @Builder.Default
-    private BigDecimal monthlySpendingTarget = BigDecimal.ZERO; // 월 사용 목표 금액
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal currentMonthSpending = BigDecimal.ZERO;
 
-    @Column(precision = 19, scale = 2)
     @Builder.Default
-    private BigDecimal currentMonthSpending = BigDecimal.ZERO; // 이번 달 사용 금액
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalBenefitReceived = BigDecimal.ZERO;
 
-    @Column(precision = 19, scale = 2)
     @Builder.Default
-    private BigDecimal totalBenefitReceived = BigDecimal.ZERO; // 총 받은 혜택 금액
-
-    @Column(nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
     @Column(nullable = false)
-    @Builder.Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    public enum CardType {
-        CREDIT,  // 신용카드
-        DEBIT,   // 체크카드
-        PREPAID  // 선불카드
-    }
+    private Boolean isActive = true;
 }

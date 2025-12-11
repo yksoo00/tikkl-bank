@@ -1,9 +1,8 @@
 package com.tikkl.bank.dto.response;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
-import java.math.BigDecimal;
-import java.util.List;
 
 @Getter
 @Builder
@@ -13,21 +12,18 @@ public class MyPageResponse {
     private SavingsAccountResponse savingsAccount;
     private List<AccountResponse> accounts;
     private List<CardResponse> cards;
-    private BigDecimal savingsRatio;
-    private Boolean autoSavingsEnabled;
 
     public static MyPageResponse of(
-            MemberResponse member,
-            SavingsAccountResponse savingsAccount,
-            List<AccountResponse> accounts,
-            List<CardResponse> cards) {
+        MemberResponse member,
+        SavingsAccountResponse savings,
+        List<AccountResponse> accounts,
+        List<CardResponse> cards
+    ) {
         return MyPageResponse.builder()
-                .member(member)
-                .savingsAccount(savingsAccount)
-                .accounts(accounts)
-                .cards(cards)
-                .savingsRatio(member.getSavingsRatio())
-                .autoSavingsEnabled(member.getAutoSavingsEnabled())
-                .build();
+            .member(member)
+            .savingsAccount(savings)
+            .accounts(accounts)
+            .cards(cards)
+            .build();
     }
 }

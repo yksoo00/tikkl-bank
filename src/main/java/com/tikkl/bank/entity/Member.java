@@ -1,13 +1,19 @@
 package com.tikkl.bank.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
-@Table(name = "members")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,40 +28,24 @@ public class Member {
     @Column(nullable = false, unique = true, length = 50)
     private String loginId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String password;
 
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false)
     private LocalDate birthDate;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, unique = true, length = 20)
     private String phoneNumber;
 
+    // 저축 설정 (지금은 구조 유지용)
+    @Column(precision = 5, scale = 2)
+    private BigDecimal savingsRatio;
+
+    private Boolean autoSavingsEnabled;
+
+    @Builder.Default
     @Column(nullable = false)
-    @Builder.Default
-    private BigDecimal savingsRatio = BigDecimal.valueOf(10); // 기본 저축 비율 10%
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean autoSavingsEnabled = false; // 자동 저축 활성화 여부
-
-    @Column(nullable = false)
-    @Builder.Default
-    private Boolean onboardingCompleted = false; // 서비스 온보딩 완료 여부
-
-    @Column(nullable = false, updatable = false)
-    @Builder.Default
-    private LocalDateTime createdAt = LocalDateTime.now();
-
-    @Column(nullable = false)
-    @Builder.Default
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    private Boolean onboardingCompleted = false;
 }

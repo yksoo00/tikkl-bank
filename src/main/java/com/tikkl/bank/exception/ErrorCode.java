@@ -40,7 +40,17 @@ public enum ErrorCode {
     TRANSACTION_FAILED(HttpStatus.BAD_REQUEST, "거래 처리에 실패했습니다"),
 
     // Product errors
-    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다");
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "상품을 찾을 수 없습니다"),
+    // Account errors (추가)
+
+    ACCOUNT_OWNER_MISMATCH(HttpStatus.FORBIDDEN, "계좌 소유자가 일치하지 않습니다"),
+
+
+    // Billing errors (선택)
+    BILLING_NOT_FOUND(HttpStatus.NOT_FOUND, "청구 정보를 찾을 수 없습니다"),
+    CARD_OWNER_MISMATCH(HttpStatus.FORBIDDEN,"카드 소유자가 일치하지 않습니다"),
+    ARD_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND,""), CARD_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND ,"");
+
 
     private final HttpStatus status;
     private final String message;

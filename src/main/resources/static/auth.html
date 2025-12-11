@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>TIKKL BANK 로그인</title>
+  <link rel="stylesheet" href="auth.css"/>
+  <script defer src="auth.js"></script>
+</head>
+<body>
+<main class="auth-page">
+  <section class="auth-hero">
+    <div class="hero-logo">
+      <img src="assets/tikkl-logo.svg" alt="티끌 로고"/>
+    </div>
+    <h1>티끌 뱅크</h1>
+    <p>단 하루도, 내 돈을 허투루 두지 마세요.<br/>로그인하고 내 금융 생활을 한눈에 관리하세요.</p>
+    <ul>
+      <li>실시간 저금 잔고와 혜택 조회</li>
+      <li>청구 예정 금액과 D-Day 트래킹</li>
+      <li>티끌 AI 추천 금융 상품 제안</li>
+    </ul>
+  </section>
+
+  <section class="auth-card">
+    <div class="auth-tabs">
+      <button class="active" data-auth-tab="login">로그인</button>
+      <button data-auth-tab="signup">회원가입</button>
+    </div>
+
+    <form id="loginForm" class="auth-form active" data-auth-panel="login">
+      <label>
+        로그인 ID
+        <input type="text" name="loginId" required placeholder="아이디를 입력하세요"/>
+      </label>
+      <label>
+        비밀번호
+        <input type="password" name="password" required placeholder="비밀번호를 입력하세요"/>
+      </label>
+      <button type="submit" class="primary-btn">로그인</button>
+      <p class="form-helper">계정이 없으신가요? <button type="button" class="text-link" data-auth-tab="signup">회원가입</button></p>
+    </form>
+
+    <form id="signupForm" class="auth-form" data-auth-panel="signup">
+      <div class="form-grid">
+        <label>
+          로그인 ID
+          <input type="text" name="loginId" required placeholder="예: tikkl_user"/>
+        </label>
+        <label>
+          비밀번호
+          <input type="password" name="password" required placeholder="8자 이상"/>
+        </label>
+        <label>
+          이름
+          <input type="text" name="name" required placeholder="홍길동"/>
+        </label>
+        <label>
+          생년월일
+          <input type="text" name="birthDate" required placeholder="1998-01-01"/>
+        </label>
+        <label>
+          전화번호
+          <input type="text" name="phoneNumber" required placeholder="010-1234-5678"/>
+        </label>
+      </div>
+      <button type="submit" class="primary-btn">회원가입</button>
+      <p class="form-helper">이미 계정이 있으신가요? <button type="button" class="text-link" data-auth-tab="login">로그인</button></p>
+    </form>
+
+    <p class="terms-text">로그인 또는 회원가입 시 티끌뱅크의 서비스 이용약관 및 개인정보 처리방침에 동의하게 됩니다.</p>
+  </section>
+</main>
+
+<div id="authToast" class="auth-toast" hidden></div>
+</body>
+</html>

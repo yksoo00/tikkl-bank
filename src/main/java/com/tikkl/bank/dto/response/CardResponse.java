@@ -1,45 +1,35 @@
 package com.tikkl.bank.dto.response;
 
 import com.tikkl.bank.entity.Card;
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Getter;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 
 @Getter
 @Builder
 public class CardResponse {
 
     private Long id;
-    private String cardNumber;
-    private String cardName;
-    private String cardCompany;
-    private String cardType;
-    private LocalDate expiryDate;
-    private Boolean isActive;
-    private BigDecimal bonusSavingsRatio;
-    private String benefits;
-    private Long linkedSavingsAccountId;
-    private BigDecimal monthlySpendingTarget;
+    private String cardName;      // 별칭 or 마스터 카드 이름
+    private String cardNumber;    // 마스킹된 번호
+    private String company;       // 카드사 (마스터 기반)
     private BigDecimal currentMonthSpending;
     private BigDecimal totalBenefitReceived;
+    private Long cardProductId;
 
     public static CardResponse from(Card card) {
         return CardResponse.builder()
-                .id(card.getId())
-                .cardNumber(card.getCardNumber())
-                .cardName(card.getCardName())
-                .cardCompany(card.getCardCompany())
-                .cardType(card.getCardType().name())
-                .expiryDate(card.getExpiryDate())
-                .isActive(card.getIsActive())
-                .bonusSavingsRatio(card.getBonusSavingsRatio())
-                .benefits(card.getBenefits())
-                .linkedSavingsAccountId(card.getLinkedSavingsAccount() != null ? 
-                        card.getLinkedSavingsAccount().getId() : null)
-                .monthlySpendingTarget(card.getMonthlySpendingTarget())
-                .currentMonthSpending(card.getCurrentMonthSpending())
-                .totalBenefitReceived(card.getTotalBenefitReceived())
-                .build();
+            .id(card.getId())
+            .cardName(
+                card.getNickname() != null && !card.getNickname().isBlank()
+                    ? card.getNickname()
+                    : card.getCardProduct().getName()
+            )
+            .cardNumber(card.getMaskedCardNumber())
+            .company(card.getCardProduct().getCompany())
+            .currentMonthSpending(card.getCurrentMonthSpending())
+            .totalBenefitReceived(card.getTotalBenefitReceived())
+            .cardProductId(card.getCardProduct().getId())
+            .build();
     }
 }

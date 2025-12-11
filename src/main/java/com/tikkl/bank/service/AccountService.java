@@ -12,12 +12,12 @@ import com.tikkl.bank.exception.CustomException;
 import com.tikkl.bank.exception.ErrorCode;
 import com.tikkl.bank.repository.AccountRepository;
 import com.tikkl.bank.repository.TransactionRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,14 +31,14 @@ public class AccountService {
     public List<AccountResponse> getAccounts(Long memberId) {
         Member member = memberService.findMemberById(memberId);
         return accountRepository.findByMemberAndIsActiveTrue(member).stream()
-                .map(AccountResponse::from)
-                .collect(Collectors.toList());
+            .map(AccountResponse::from)
+            .collect(Collectors.toList());
     }
 
     public AccountResponse getAccount(Long memberId, Long accountId) {
         Member member = memberService.findMemberById(memberId);
         Account account = findAccountById(accountId);
-        
+
         validateAccountOwner(account, member);
         return AccountResponse.from(account);
     }
@@ -52,17 +52,18 @@ public class AccountService {
         }
 
         Account account = Account.builder()
-                .member(member)
-                .accountNumber(request.getAccountNumber())
-                .bankName(request.getBankName())
-                .accountType(Account.AccountType.CHECKING)
-                .isPrimary(request.getIsPrimary() != null && request.getIsPrimary())
-                .build();
+            .member(member)
+            .balance(BigDecimal.ZERO)   // ⭐ 반드시 추가
+            .accountNumber(request.getAccountNumber())
+            .bankName(request.getBankName())
+            .accountType(Account.AccountType.CHECKING)
+            .isPrimary(request.getIsPrimary() != null && request.getIsPrimary())
+            .build();
 
         // 주 계좌로 설정 시 기존 주 계좌 해제
         if (Boolean.TRUE.equals(request.getIsPrimary())) {
             accountRepository.findByMemberAndIsPrimaryTrue(member)
-                    .ifPresent(existingPrimary -> existingPrimary.setIsPrimary(false));
+                .ifPresent(existingPrimary -> existingPrimary.setIsPrimary(false));
         }
 
         Account savedAccount = accountRepository.save(account);
@@ -73,12 +74,12 @@ public class AccountService {
     public AccountResponse setPrimaryAccount(Long memberId, Long accountId) {
         Member member = memberService.findMemberById(memberId);
         Account account = findAccountById(accountId);
-        
+
         validateAccountOwner(account, member);
 
         // 기존 주 계좌 해제
         accountRepository.findByMemberAndIsPrimaryTrue(member)
-                .ifPresent(existingPrimary -> existingPrimary.setIsPrimary(false));
+            .ifPresent(existingPrimary -> existingPrimary.setIsPrimary(false));
 
         account.setIsPrimary(true);
         return AccountResponse.from(account);
@@ -88,7 +89,7 @@ public class AccountService {
     public void deleteAccount(Long memberId, Long accountId) {
         Member member = memberService.findMemberById(memberId);
         Account account = findAccountById(accountId);
-        
+
         validateAccountOwner(account, member);
         account.setIsActive(false);
     }
@@ -97,7 +98,7 @@ public class AccountService {
     public TransactionResponse deposit(Long memberId, Long accountId, DepositRequest request) {
         Member member = memberService.findMemberById(memberId);
         Account account = findAccountById(accountId);
-        
+
         validateAccountOwner(account, member);
 
         // 잔액 증가
@@ -105,14 +106,14 @@ public class AccountService {
 
         // 거래 내역 생성
         Transaction transaction = Transaction.builder()
-                .member(member)
-                .account(account)
-                .transactionType(Transaction.TransactionType.DEPOSIT)
-                .amount(request.getAmount())
-                .balanceAfter(account.getBalance())
-                .description(request.getDescription() != null ? request.getDescription() : "입금")
-                .status(Transaction.TransactionStatus.COMPLETED)
-                .build();
+            .member(member)
+            .account(account)
+            .transactionType(Transaction.TransactionType.DEPOSIT)
+            .amount(request.getAmount())
+            .balanceAfter(account.getBalance())
+            .description(request.getDescription() != null ? request.getDescription() : "입금")
+            .status(Transaction.TransactionStatus.COMPLETED)
+            .build();
 
         Transaction savedTransaction = transactionRepository.save(transaction);
         return TransactionResponse.from(savedTransaction);
@@ -122,7 +123,7 @@ public class AccountService {
     public TransactionResponse withdraw(Long memberId, Long accountId, WithdrawRequest request) {
         Member member = memberService.findMemberById(memberId);
         Account account = findAccountById(accountId);
-        
+
         validateAccountOwner(account, member);
 
         // 잔액 확인
@@ -135,14 +136,14 @@ public class AccountService {
 
         // 거래 내역 생성
         Transaction transaction = Transaction.builder()
-                .member(member)
-                .account(account)
-                .transactionType(Transaction.TransactionType.WITHDRAWAL)
-                .amount(request.getAmount())
-                .balanceAfter(account.getBalance())
-                .description(request.getDescription() != null ? request.getDescription() : "출금")
-                .status(Transaction.TransactionStatus.COMPLETED)
-                .build();
+            .member(member)
+            .account(account)
+            .transactionType(Transaction.TransactionType.WITHDRAWAL)
+            .amount(request.getAmount())
+            .balanceAfter(account.getBalance())
+            .description(request.getDescription() != null ? request.getDescription() : "출금")
+            .status(Transaction.TransactionStatus.COMPLETED)
+            .build();
 
         Transaction savedTransaction = transactionRepository.save(transaction);
         return TransactionResponse.from(savedTransaction);
@@ -150,7 +151,7 @@ public class AccountService {
 
     public Account findAccountById(Long accountId) {
         return accountRepository.findById(accountId)
-                .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+            .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
     }
 
     private void validateAccountOwner(Account account, Member member) {
@@ -160,6 +161,7 @@ public class AccountService {
     }
 
     public static class AccountException extends CustomException {
+
         public AccountException(ErrorCode errorCode) {
             super(errorCode);
         }

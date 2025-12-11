@@ -1,39 +1,29 @@
 package com.tikkl.bank.dto.response;
 
 import com.tikkl.bank.entity.CardBenefit;
+import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Getter;
-import java.math.BigDecimal;
 
 @Getter
 @Builder
 public class CardBenefitResponse {
 
     private Long id;
-    private String benefitName;
-    private String benefitDescription;
-    private String benefitType;
+    private String category;
+    private BigDecimal targetAmount;
     private BigDecimal discountRate;
     private BigDecimal maxDiscount;
-    private BigDecimal targetAmount;
     private BigDecimal currentAmount;
-    private BigDecimal achievementRate;
-    private String category;
-    private Boolean isActive;
 
-    public static CardBenefitResponse from(CardBenefit benefit) {
+    public static CardBenefitResponse from(CardBenefit b) {
         return CardBenefitResponse.builder()
-                .id(benefit.getId())
-                .benefitName(benefit.getBenefitName())
-                .benefitDescription(benefit.getBenefitDescription())
-                .benefitType(benefit.getBenefitType().name())
-                .discountRate(benefit.getDiscountRate())
-                .maxDiscount(benefit.getMaxDiscount())
-                .targetAmount(benefit.getTargetAmount())
-                .currentAmount(benefit.getCurrentAmount())
-                .achievementRate(benefit.getAchievementRate())
-                .category(benefit.getCategory())
-                .isActive(benefit.getIsActive())
-                .build();
+            .id(b.getId())
+            .category(b.getCategory())
+            .targetAmount(b.getTargetAmount())
+            .discountRate(b.getDiscountRate())
+            .maxDiscount(b.getMaxDiscount())
+            .currentAmount(b.getCurrentAmount())
+            .build();
     }
 }

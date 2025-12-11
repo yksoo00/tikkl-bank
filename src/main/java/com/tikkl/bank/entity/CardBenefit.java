@@ -1,9 +1,23 @@
 package com.tikkl.bank.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "card_benefits")
@@ -29,32 +43,32 @@ public class CardBenefit {
     private String benefitDescription; // 혜택 설명
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private BenefitType benefitType;
 
     @Column(nullable = false, precision = 5, scale = 2)
-    private BigDecimal discountRate; // 할인율 (%)
+    private BigDecimal discountRate; // 15.00(%처럼 저장) 또는 0.15(%를 비율로 저장) 등 네가 쓰는 형태에 맞추면 됨
 
     @Column(precision = 19, scale = 2)
     private BigDecimal maxDiscount; // 최대 할인 금액
 
-    @Column(nullable = false, precision = 19, scale = 2)
     @Builder.Default
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal targetAmount = BigDecimal.ZERO; // 혜택 달성 목표 금액
 
-    @Column(nullable = false, precision = 19, scale = 2)
     @Builder.Default
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal currentAmount = BigDecimal.ZERO; // 현재 달성 금액
 
     @Column(length = 50)
     private String category; // 적용 카테고리 (식비, 교통, 쇼핑 등)
 
-    @Column(nullable = false)
     @Builder.Default
+    @Column(nullable = false)
     private Boolean isActive = true;
 
-    @Column(nullable = false, updatable = false)
     @Builder.Default
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public enum BenefitType {
@@ -64,12 +78,25 @@ public class CardBenefit {
         MILEAGE      // 마일리지
     }
 
-    // 달성률 계산
+    /**
+     * 어떤 상품 혜택에서 복사된 건지 (추적용)
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    private CardProductBenefit productBenefit;
+
     public BigDecimal getAchievementRate() {
-        if (targetAmount.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.valueOf(100);
+        if (targetAmount == null || targetAmount.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
         }
-        return currentAmount.multiply(BigDecimal.valueOf(100))
-                .divide(targetAmount, 2, java.math.RoundingMode.HALF_UP);
+        return currentAmount
+            .multiply(BigDecimal.valueOf(100))
+            .divide(targetAmount, 2, java.math.RoundingMode.DOWN);
+    }
+
+    public void addSpending(BigDecimal amount) {
+        if (amount == null) {
+            return;
+        }
+        this.currentAmount = this.currentAmount.add(amount);
     }
 }

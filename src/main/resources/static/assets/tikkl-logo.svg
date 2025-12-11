@@ -1,0 +1,11 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tikklGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop stop-color="#5851FF" offset="0%"/>
+      <stop stop-color="#A64DFF" offset="35%"/>
+      <stop stop-color="#3DD5F3" offset="100%"/>
+    </linearGradient>
+  </defs>
+  <rect width="120" height="120" rx="30" fill="white"/>
+  <text x="24" y="80" font-family="Pretendard, 'Noto Sans KR', sans-serif" font-weight="700" font-size="72" fill="url(#tikklGradient)">tT</text>
+</svg>
